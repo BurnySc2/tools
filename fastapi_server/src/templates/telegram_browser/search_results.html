@@ -19,9 +19,9 @@
             </div>
             {% elif row.metadata.status in ["Queued", "Downloading"] %}
             {# WAITING FOR FILE TO BE DOWNLOADED #}
-            <div class="w-8">
+            <div>
                 {# TODO poll data? #}
-                <img src="/static/spinner.svg" class="animate-spin" alt="">
+                <img src="/static/spinner.svg" class="animate-spin w-8" alt="">
             </div>
             <div class="w-8 hover:bg-red-500">
                 {# DELETE FILE #}

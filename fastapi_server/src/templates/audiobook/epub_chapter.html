@@ -31,10 +31,10 @@ State4: audio generated, audio loaded
     <img class="htmx-indicator animate-spin w-8" style="opacity: 1;" src="/static/spinner.svg" />
   </div>
   {% elif chapter.has_audio is defined and chapter.has_audio %}
-  <button class="flex border-4 border-black p-2 rounded-3xl hover:bg-green-300 items-center"
-  {# TODO Load audio directly with 'src' attribute but only load metadata, not the full audio #}
-  {# TODO The src may be another server endpoint or a minio presigned url with expire duration of 1h #}
-    hx-target="#chapter_audio_{{ chapter.chapter_number }}" hx-swap="outerHTML"
+  <button class="flex border-4 border-black p-2 rounded-3xl hover:bg-green-300 items-center" {# TODO Load audio directly
+    with 'src' attribute but only load metadata, not the full audio #} {# TODO The src may be another server endpoint or
+    a minio presigned url with expire duration of 1h #} hx-target="#chapter_audio_{{ chapter.chapter_number }}"
+    hx-swap="outerHTML"
     hx-post="/audiobook/load_generated_audio?book_id={{ book_id }}&chapter_number={{ chapter.chapter_number }}"
     hx-indicator="#spinner2_{{ chapter.chapter_number }}">Load audio
     <img id="spinner2_{{ chapter.chapter_number }}" class="htmx-indicator animate-spin w-8" src="/static/spinner.svg" />
