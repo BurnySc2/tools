@@ -40,7 +40,7 @@ class AsyncIrcBot:
             await self.ws.send_text(f"USER {self.username} :This is a fun bot!")
             await self.ws.send_text(f"NICK {self.username}")  # sets nick
             await self.ws.send_text("PRIVMSG nickserv :iNOOPE")  # auth
-            asyncio.create_task(self.auto_rejoin())
+            # asyncio.create_task(self.auto_rejoin())
             task = asyncio.create_task(self.receive())
             self.is_ready = True
             # From here on: blocking
