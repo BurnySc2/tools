@@ -8,7 +8,7 @@ from pathlib import Path
 
 from loguru import logger
 
-from src.models.db import compress_files
+from src.helper import compress_files
 
 # poetry run python -m pytest
 

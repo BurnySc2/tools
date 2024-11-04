@@ -6,38 +6,34 @@ authors = ["BuRny <gamingburny@gmail.com>"]
 package-mode = false
 
 [tool.poetry.dependencies]
-python = ">=3.9, <3.13" # Pony doesnt support 3.11 yet
+python = ">=3.10, <3.14"
 # Argparse with dataclass
 simple-parsing = "^0.1"
 # Better dataclasses
 pydantic = "^2"
 # Logging
-loguru = "^0.7.0"
-# Read config files
-toml = "^0.10.2"
+loguru = "^0.7"
 # Better datetime
-arrow = "^1.2.3"
+arrow = "^1.2"
 # Database interaction
-pony = "^0.7.16"
-# Requires binary for Dockerfile
-# psycopg2 = "^2.9.6"
-psycopg2-binary = "^2.9.6"
+prisma = "^0.15"
 # Display sizes in human readable format
-humanize = "^4.6.0"
-# Transcribing
-# faster-whisper = "^1.0.1"
+humanize = "^4"
 # Progress bar
-tqdm = "^4.65.0"
-pyrogram = "^2.0.93" # Since version 2.0.94 it doesn't seem to allow parallel downloads
+tqdm = "^4"
 # Translator
-# deep-translator = "^1.11.1"
-dataset = "^1.6.2"
-python-dotenv = "^1.0.1"
-numpy = "^1.24.5"
-whisperx = "^3.1.5"
+deep-translator = "^1"
+python-dotenv = "^1"
+whisperx = "^3"
 # https://stackoverflow.com/a/76359919/10882657
 torch = { version = "^2.4.1+cpu", source = "pytorch_cpu" }
 torchaudio = {version = "^2.4.1+cpu", source = "pytorch_cpu"}
+deepmultilingualpunctuation = "^1.0.1"
+# Had to fix version to make poetry work
+llvmlite = "0.43.0"
+numba = "0.60.0"
+langdetect = "^1.0.9"
+numpy = "<2"
 
 [tool.poetry.group.dev.dependencies]
 # Linter

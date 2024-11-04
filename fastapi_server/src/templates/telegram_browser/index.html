@@ -169,9 +169,7 @@
         }
     });
     // Drag and drop functionality https://www.youtube.com/watch?v=jfYWwQrtzzY
-    const draggables = document.querySelectorAll('.draggable-item');
-    const containers = document.querySelectorAll('.droppable-container');
-    draggables.forEach(draggable => {
+    document.querySelectorAll('.draggable-item').forEach(draggable => {
         draggable.addEventListener('dragstart', () => {
             draggable.classList.add('dragging')
         })
@@ -179,7 +177,7 @@
             draggable.classList.remove('dragging')
         })
     });
-    containers.forEach(container => {
+    document.querySelectorAll('.droppable-container').forEach(container => {
         container.addEventListener('dragover', e => {
             e.preventDefault()
             const afterElement = getDragAfterElement(container, e.clientY)
@@ -190,7 +188,7 @@
                 container.insertBefore(draggable, afterElement)
             }
         })
-    })
+    });
     function getDragAfterElement(container, y) {
         const draggableElements = [...container.querySelectorAll('.draggable-item:not(.dragging)')]
         return draggableElements.reduce((closest, child) => {

@@ -7,6 +7,7 @@
         <th style="border: 1px solid black;">Remove Book</th>
     </tr>
     {% for book in books %}
+    {# TODO Why doesn't ctrl click a link open a new tab? How to add that functionality #}
     <tr id="bookrow{{ book.id }}" style="cursor: pointer;" hx-push-url="/audiobook/book/{{ book.id }}"
         hx-get="/audiobook/book/{{ book.id }}" hx-swap="innerHTML" hx-target="body">
         <td style="border-right: 1px dashed black; border-bottom: 1px dotted black; border-collapse: collapse;">{{

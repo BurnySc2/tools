@@ -147,8 +147,6 @@ class MyTelegramBrowserRoute(Controller):
         self,
         active_columns_str: Annotated[str | None, Parameter(cookie=COOKIES["active_columns"])] = None,
     ) -> Template:
-        # all_channels = await all_channels_cache()
-        # all_file_formats = await all_file_formats_cache()
         active_columns_dict, disabled_columns_dict = get_actived_and_disabled_columns(active_columns_str)
         return Template(
             "telegram_browser/index.html",
@@ -156,10 +154,6 @@ class MyTelegramBrowserRoute(Controller):
                 "active_columns": active_columns_dict,
                 "disabled_columns": disabled_columns_dict,
             },
-            # context={
-            #     "channel_names": [i.channel_username for i in all_channels],
-            #     "file_extensions": [i["file_extension_lower"] for i in all_file_formats],
-            # },
         )
 
     @post("/search")
