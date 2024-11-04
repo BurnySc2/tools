@@ -10,6 +10,9 @@ from whisperx.types import AlignedTranscriptionResult, SingleAlignedSegment, Sin
 from prisma import Prisma
 from src.helper import recurse_path
 
+# from faster_whisper import utils
+# See "faster_whisper/utils.py:_MODELS"
+# https://github.com/SYSTRAN/faster-whisper/blob/master/faster_whisper/utils.py
 type model_sizes = Literal[
     "tiny",
     "base",
@@ -17,19 +20,23 @@ type model_sizes = Literal[
     "medium",
     "large",
     "turbo",
-    "tiny_en",
-    "base_en",
-    "small_en",
-    "medium_en",
-    "large_en",
-    "turbo_en",
+    "tiny.en",
+    "base.en",
+    "small.en",
+    "medium.en",
+    # https://huggingface.co/distil-whisper/distil-large-v2
+    "distil-large-v2",
+    # "distil-large-v3",
+    "distil-medium.en",
+    "distil-small.en",
 ]
+type language_codes = Literal["en", "fr", "de", "es", "it", "ja", "zh", "nl", "uk", "pt"]
 
 
 def transcribe_file(
     file_path: Path,
     model_size: model_sizes,
-    language: Literal["de", "en"] | None = None,
+    language: language_codes | None = None,
 ) -> AlignedTranscriptionResult:
     # Models: https://github.com/openai/whisper#available-models-and-languages
 
@@ -109,7 +116,7 @@ def save_result_to_db(
 def mass_transcribe(
     input_folder_path: Path,
     model_size: model_sizes,
-    language: Literal["de", "en"] | None = None,
+    language: language_codes | None = None,
 ) -> None:
     for file_path in recurse_path(input_folder_path, depth=1):
         if already_in_db(file_path):
@@ -122,7 +129,7 @@ def mass_transcribe(
 
 if __name__ == "__main__":
     input_folder_path = Path(os.getenv("MASS_TRANSCRIBE_INPUT_DIRECTORY"))
-    mass_transcribe(input_folder_path, model_size="medium", language="de")
+    mass_transcribe(input_folder_path, model_size="distil-large-v2", language="de")
 
     # subtitle_path = audio_file_path.parent / f"{audio_file_path.stem}.srt"
 
