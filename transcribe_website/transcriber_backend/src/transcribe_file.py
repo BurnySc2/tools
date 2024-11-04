@@ -28,8 +28,9 @@ type model_sizes = Literal[
     "small.en",
     "medium.en",
     # https://huggingface.co/distil-whisper/distil-large-v2
+    # Only avaliable for english!
     "distil-large-v2",
-    # "distil-large-v3",
+    "distil-large-v3",
     "distil-medium.en",
     "distil-small.en",
 ]
@@ -44,11 +45,17 @@ def transcribe_file(
     # Models: https://github.com/openai/whisper#available-models-and-languages
 
     device = "cpu"
-    batch_size = 4  # reduce if low on GPU mem
-    compute_type = "int8"  # change to "int8" if low on GPU mem (may reduce accuracy)
+    batch_size = 4
+    compute_type = "int8"
 
     # save model to local path (optional)
     model_dir = "whisper_models"
+
+    # TODO Reply to issues:
+    # https://github.com/m-bain/whisperX/issues/333
+    # https://github.com/m-bain/whisperX/issues/466
+    # Maybe using model that only supports english?
+
     model = whisperx.load_model(model_size, device, compute_type=compute_type, download_root=model_dir)
 
     audio = whisperx.load_audio(file_path)
@@ -57,7 +64,7 @@ def transcribe_file(
     # delete model if low on GPU resources
     # import gc; gc.collect(); torch.cuda.empty_cache(); del model
 
-    # 2. Align whisper output
+    # Align whisper output
     model_a, metadata = whisperx.load_align_model(language_code=result["language"], device=device)
     result2 = whisperx.align(
         result["segments"],
@@ -90,7 +97,7 @@ def save_result_to_db(
     sentence_segment: SingleAlignedSegment
     for sentence_segment in result["segments"]:
         # Keys required in sentence_segment
-        if {"text", "start", "end"} <= set(sentence_segment.keys()):
+        if not ({"text", "start", "end"} <= set(sentence_segment.keys())):
             continue
         start, end, text = sentence_segment["start"], sentence_segment["end"], sentence_segment["text"]
         sentences_to_insert.append(
@@ -105,7 +112,7 @@ def save_result_to_db(
     word_segment: SingleWordSegment
     for word_segment in result["word_segments"]:
         # Keys required in word_segment
-        if {"word", "start", "end"} <= set(word_segment.keys()):
+        if not ({"word", "start", "end"} <= set(word_segment.keys())):
             continue
         start, end, word = word_segment["start"], word_segment["end"], word_segment["word"]
         words_to_insert.append(
@@ -137,8 +144,11 @@ def mass_transcribe(
 
 
 if __name__ == "__main__":
+    # Can be run with:
+    # PYTHONPATH=$(pwd) poetry run python src/transcribe_file.py
     input_folder_path = Path(os.getenv("MASS_TRANSCRIBE_INPUT_DIRECTORY"))
-    mass_transcribe(input_folder_path, model_size="distil-large-v2", language="de")
+    # mass_transcribe(input_folder_path, model_size="tiny", language="de")
+    mass_transcribe(input_folder_path, model_size="medium", language="de")
 
     # subtitle_path = audio_file_path.parent / f"{audio_file_path.stem}.srt"
 
