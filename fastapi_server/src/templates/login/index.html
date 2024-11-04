@@ -1,42 +1,42 @@
 {% include "header.html" with context %}
 {% include "nav.html" with context %}
 
-<main class="flex flex-col items-center justify-center h-screen bg-gray-300 gap-4">
+<main class="flex h-screen flex-col items-center justify-center gap-4 bg-gray-300">
     {% if twitch_user == None and github_user == None and google_user == None %}
-    <a href="/login/twitch" class="border-black rounded border-4 p-2">
+    <a href="/login/twitch" class="rounded border-4 border-black p-2">
         Login with twitch
     </a>
-    <a href="/login/github" class="border-black rounded border-4 p-2">
+    <a href="/login/github" class="rounded border-4 border-black p-2">
         Login with github
     </a>
-    <a href="/login/google" class="border-black rounded border-4 p-2">
+    <a href="/login/google" class="rounded border-4 border-black p-2">
         Login with google
     </a>
     {% endif %}
 
     {% if twitch_user != None %}
-    <div class="border-black rounded border-4 p-2">
+    <div class="rounded border-4 border-black p-2">
         Logged in to twitch as user '{{ twitch_user.display_name }}'
     </div>
-    <a href="/logout" class="border-black rounded border-4 p-2">
+    <a href="/logout" class="rounded border-4 border-black p-2">
         Log out from twitch
     </a>
     {% endif %}
 
     {% if github_user != None %}
-    <div class="border-black rounded border-4 p-2">
+    <div class="rounded border-4 border-black p-2">
         Logged in to github as user '{{ github_user.login }}'
     </div>
-    <a href="/logout" class="border-black rounded border-4 p-2">
+    <a href="/logout" class="rounded border-4 border-black p-2">
         Log out from github
     </a>
     {% endif %}
 
     {% if google_user != None %}
-    <div class="border-black rounded border-4 p-2">
+    <div class="rounded border-4 border-black p-2">
         Logged in to google as user '{{ google_user.display_name }}'
     </div>
-    <a href="/logout" class="border-black rounded border-4 p-2">
+    <a href="/logout" class="rounded border-4 border-black p-2">
         Log out from google
     </a>
     {% endif %}

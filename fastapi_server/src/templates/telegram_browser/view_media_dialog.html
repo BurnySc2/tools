@@ -1,4 +1,4 @@
-<div class="flex flex-col items-center justify-center w-full h-full p-1">
+<div class="flex h-full w-full flex-col items-center justify-center p-1">
     {% if mime_type.startswith("video/") %}
     <video class="grow" controls>
         <source src="{{ minio_url }}" type="{{ mime_type }}">
@@ -12,6 +12,6 @@
     {% elif mime_type.startswith("image/") %}
     <img class="object-scale-down" src="{{ minio_url }}" alt="" />
     {% endif %}
-    <button class="border-2 border-white text-white p-1 hover:bg-green-800 mt-2"
+    <button class="mt-2 border-2 border-white p-1 text-white hover:bg-green-800"
         onclick="a=document.getElementById('view-media-dialog');a.close();a.replaceChildren()">Close</button>
 </div>

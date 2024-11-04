@@ -1,4 +1,4 @@
-<table class="border-collapse w-full">
+<table class="w-full border-collapse">
     <tr>
         {% for col_key, col_header_name in table_headers.items() %}
         <th class="whitespace-nowrap">{{ col_header_name }}</th>
@@ -14,32 +14,37 @@
             {% if row.metadata.status == "HasFile" %}
             {# REQUEST FILE TO DOWNLOAD #}
             {# TODO Convert into 'queued' symbol #}
-            <div class="cursor-copy w-8 hover:bg-yellow-300" hx-post="/telegram-browser/queue-file/{{ row.metadata.id }}" hx-swap="none">
+            <div class="w-8 cursor-copy hover:bg-yellow-300"
+                hx-post="/telegram-browser/queue-file/{{ row.metadata.id }}" hx-swap="none">
                 <img src="/static/queue.svg" alt="">
             </div>
             {% elif row.metadata.status in ["Queued", "Downloading"] %}
             {# WAITING FOR FILE TO BE DOWNLOADED #}
             <div>
                 {# TODO poll data? #}
-                <img src="/static/spinner.svg" class="animate-spin w-8" alt="">
+                <img src="/static/spinner.svg" class="w-8 animate-spin" alt="">
             </div>
             <div class="w-8 hover:bg-red-500">
                 {# DELETE FILE #}
-                <img class="cursor-no-drop" src="/static/delete.svg" alt="" hx-post="/telegram-browser/delete-file/{{ row.metadata.id }}">
+                <img class="cursor-no-drop" src="/static/delete.svg" alt=""
+                    hx-post="/telegram-browser/delete-file/{{ row.metadata.id }}">
             </div>
             {% elif row.metadata.status == "Downloaded" %}
             {# FILE HAS BEEN DOWNLOADED #}
             <div class="w-8 hover:bg-green-300">
                 {# TODO VIEW FILE #}
-                <img id="" class="open-view-media-dialog cursor-pointer" src="/static/play.svg" alt="" hx-get="/telegram-browser/view-file/{{ row.metadata.id }}" hx-target="#view-media-dialog">
+                <img id="" class="open-view-media-dialog cursor-pointer" src="/static/play.svg" alt=""
+                    hx-get="/telegram-browser/view-file/{{ row.metadata.id }}" hx-target="#view-media-dialog">
             </div>
             <div class="w-8 hover:bg-green-300">
                 {# DOWNLOAD FILE #}
-                <img class="cursor-pointer" src="/static/download.svg" alt="" hx-get="/telegram-browser/download-file/{{ row.metadata.id }}">
+                <img class="cursor-pointer" src="/static/download.svg" alt=""
+                    hx-get="/telegram-browser/download-file/{{ row.metadata.id }}">
             </div>
             <div class="w-8 hover:bg-red-500">
                 {# DELETE FILE #}
-                <img class="cursor-no-drop" src="/static/delete.svg" alt="" hx-post="/telegram-browser/delete-file/{{ row.metadata.id }}">
+                <img class="cursor-no-drop" src="/static/delete.svg" alt=""
+                    hx-post="/telegram-browser/delete-file/{{ row.metadata.id }}">
             </div>
             {# TODO Error case, if the file could not be downloaded #}
             {% endif %}
@@ -53,7 +58,7 @@
         "file_duration_seconds"] %}
         <td class="truncate text-center">{{ col_data }}</td>
         {% else %}
-        <td class="break-all line-clamp-2">
+        <td class="line-clamp-2 break-all">
             {{ col_data }}
         </td>
         {% endif %}

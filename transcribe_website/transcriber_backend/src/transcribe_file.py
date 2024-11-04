@@ -3,12 +3,15 @@ import os
 from pathlib import Path
 
 import whisperx  # pyre-fixme[21]
+from dotenv import load_dotenv
 from loguru import logger
 from typing_extensions import Literal
 from whisperx.types import AlignedTranscriptionResult, SingleAlignedSegment, SingleWordSegment
 
 from prisma import Prisma
 from src.helper import recurse_path
+
+load_dotenv()
 
 # from faster_whisper import utils
 # See "faster_whisper/utils.py:_MODELS"
@@ -86,6 +89,9 @@ def save_result_to_db(
 
     sentence_segment: SingleAlignedSegment
     for sentence_segment in result["segments"]:
+        # Keys required in sentence_segment
+        if {"text", "start", "end"} <= set(sentence_segment.keys()):
+            continue
         start, end, text = sentence_segment["start"], sentence_segment["end"], sentence_segment["text"]
         sentences_to_insert.append(
             {
@@ -98,6 +104,9 @@ def save_result_to_db(
 
     word_segment: SingleWordSegment
     for word_segment in result["word_segments"]:
+        # Keys required in word_segment
+        if {"word", "start", "end"} <= set(word_segment.keys()):
+            continue
         start, end, word = word_segment["start"], word_segment["end"], word_segment["word"]
         words_to_insert.append(
             {
