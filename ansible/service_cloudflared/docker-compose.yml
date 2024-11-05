@@ -1,0 +1,18 @@
+# docker run --rm --name my-apache-app --hostname testt -p 8081:80 --network traefiknet httpd:2.4
+networks:
+  '{{secrets.TRAFIK_NETWORK}}':
+    external: true
+
+# https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/get-started/create-local-tunnel/
+# https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/configure-tunnels/tunnel-run-parameters/
+# https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/configure-tunnels/local-management/configuration-file/
+services:
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    pull_policy: always
+    command: tunnel --no-autoupdate run
+    networks:
+    - '{{ secrets.TRAFIK_NETWORK }}'
+    restart: unless-stopped
+    environment:
+      - TUNNEL_TOKEN={{ secrets.CLOUDFLARED.TOKEN }}

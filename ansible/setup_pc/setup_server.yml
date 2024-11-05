@@ -76,3 +76,8 @@
     # Setting the following to "no"
     # PasswordAuthentication no
     # systemctl reload ssh
+
+    # For laptops, disable lid=shutdown by editing
+    # /etc/systemd/logind.conf
+    # HandleLidSwitch=ignore
+    # systemctl restart systemd-logind

@@ -1,7 +1,17 @@
 my_servers:
   hosts:
+    prodesk:
+    burnylaptopd:
     contabo: # Same as '~/.ssh/config' entry
 my_pcs:
   hosts:
     burnylaptopa:
+server_group1:
+  hosts:
+    prodesk:
+server_group2:
+  hosts:
     burnylaptopd:
+server_group3:
+  hosts:
+    contabo:
