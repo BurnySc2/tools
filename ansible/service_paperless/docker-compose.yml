@@ -1,5 +1,5 @@
 networks:
-  '{{secrets.TRAFIK_NETWORK}}':
+  '{{secrets.TRAEFIK_NETWORK}}':
     external: true
 
 services:
@@ -9,7 +9,7 @@ services:
     image: docker.io/library/redis:7
     restart: unless-stopped
     networks:
-    - '{{ secrets.TRAFIK_NETWORK }}'
+    - '{{ secrets.TRAEFIK_NETWORK }}'
     volumes:
     - redisdata:/data
 
@@ -20,7 +20,7 @@ services:
     depends_on:
     - broker
     networks:
-    - '{{ secrets.TRAFIK_NETWORK }}'
+    - '{{ secrets.TRAEFIK_NETWORK }}'
     labels:
     - traefik.enable=true
     - traefik.http.routers.{{ secrets.PAPERLESS.USERNAME }}.rule=Host(`{{ SUBDOMAIN }}.{{ secrets.MY_DOMAIN }}`)

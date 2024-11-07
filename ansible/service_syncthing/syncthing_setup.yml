@@ -4,7 +4,6 @@
   hosts: my_servers
   vars:
     USERNAME: "{{ secrets.SYNCTHING.USERNAME }}"
-    SUBDOMAIN: "{{ secrets.SYNCTHING.SUBDOMAIN }}"
     APPLICATION_PORT: "8384"
   tasks:
   - name: Create group

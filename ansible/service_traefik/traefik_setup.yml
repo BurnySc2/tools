@@ -4,7 +4,6 @@
   hosts: my_servers
   vars:
     USERNAME: "{{ secrets.TRAEFIK.USERNAME }}"
-    SUBDOMAIN: "{{ secrets.TRAEFIK.USERNAME }}"
     APPLICATION_PORT: "8080"
   tasks:
   - name: Create group
@@ -23,7 +22,7 @@
   # https://hollo.me/devops/routing-to-multiple-docker-compose-development-setups-with-traefik.html
   - name: Create docker external network
     docker_network:
-      name: '{{ secrets.TRAFIK_NETWORK }}'
+      name: '{{ secrets.TRAEFIK_NETWORK }}'
       internal: false
       attachable: true
       driver: bridge
@@ -32,6 +31,20 @@
     template:
       src: docker-compose.yml
       dest: /home/{{ USERNAME }}/docker-compose.yml
+    when: "'local_servers' in group_names"
+
+  - name: Copy docker-compose_remote.yml file
+    template:
+      src: docker-compose_remote.yml
+      dest: /home/{{ USERNAME }}/docker-compose.yml
+    when: "'remote_servers' in group_names"
+
+  - include_tasks: ../setup_cloudflare_a_record,yml
+    loop:
+      - hostname: "{{ TRAEFIK_URL }}"
+    loop_control:
+      loop_var: item
+    when: "'remote_servers' in group_names"
 
   - name: Create directories
     file:
@@ -39,12 +52,6 @@
       recurse: true
       state: directory
 
-  - name: Copy traefik.yml file
-    template:
-      src: traefik.yml
-      dest: /home/{{ USERNAME }}/traefik/traefik.yml
-
   - name: Run `docker-compose up` again
     community.docker.docker_compose_v2:
       project_src: /home/{{ USERNAME }}
-      pull: always

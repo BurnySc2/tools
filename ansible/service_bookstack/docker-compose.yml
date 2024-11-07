@@ -1,5 +1,5 @@
 networks:
-  "{{secrets.TRAFIK_NETWORK}}":
+  "{{secrets.TRAEFIK_NETWORK}}":
     external: true
 
 services:
@@ -7,7 +7,7 @@ services:
     image: lscr.io/linuxserver/bookstack:latest
     container_name: bookstack
     networks:
-      - "{{ secrets.TRAFIK_NETWORK }}"
+      - "{{ secrets.TRAEFIK_NETWORK }}"
     environment:
       - APP_URL=https://{{ secrets.BOOKSTACK.USERNAME }}.{{ secrets.MY_DOMAIN }}
       - DB_HOST=bookstack_db
@@ -32,7 +32,7 @@ services:
     image: lscr.io/linuxserver/mariadb:10.11
     container_name: bookstack_db
     networks:
-      - "{{ secrets.TRAFIK_NETWORK }}"
+      - "{{ secrets.TRAEFIK_NETWORK }}"
     environment:
       - MYSQL_ROOT_PASSWORD={{ secrets.BOOKSTACK.DB_PASS }}
       - TZ=Europe/London

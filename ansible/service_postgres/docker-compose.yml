@@ -1,5 +1,5 @@
 networks:
-  '{{secrets.TRAFIK_NETWORK}}':
+  '{{secrets.TRAEFIK_NETWORK}}':
     external: true
 
 # Open postgresql console to enter queries
@@ -54,7 +54,7 @@ services:
     hostname: postgres_postgres
     image: postgres:16-alpine
     networks:
-    - '{{ secrets.TRAFIK_NETWORK }}'
+    - '{{ secrets.TRAEFIK_NETWORK }}'
     restart: unless-stopped
     ports:
     - 5432:5432
@@ -69,7 +69,7 @@ services:
     container_name: postgres_pgadmin
     image: dpage/pgadmin4:8
     networks:
-    - '{{ secrets.TRAFIK_NETWORK }}'
+    - '{{ secrets.TRAEFIK_NETWORK }}'
     labels:
     - traefik.enable=true
     - traefik.http.routers.{{ secrets.POSTGRES.PGADMIN_USERNAME }}.rule=Host(`{{ secrets.POSTGRES.PGADMIN_USERNAME }}.{{ secrets.MY_DOMAIN }}`)
@@ -90,7 +90,7 @@ services:
     container_name: postgres_nocodb
     image: nocodb/nocodb:latest
     networks:
-    - '{{ secrets.TRAFIK_NETWORK }}'
+    - '{{ secrets.TRAEFIK_NETWORK }}'
     labels:
     - traefik.enable=true
     - traefik.http.routers.{{ secrets.POSTGRES.NOCODB_USERNAME }}.rule=Host(`{{ secrets.POSTGRES.NOCODB_USERNAME }}.{{ secrets.MY_DOMAIN }}`)

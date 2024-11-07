@@ -3,7 +3,7 @@
 # If these ports are changed, ensure that the env vars passed to the app are also changed accordingly.
 
 networks:
-  '{{secrets.TRAFIK_NETWORK}}':
+  '{{secrets.TRAEFIK_NETWORK}}':
     external: true
 
 services:
@@ -13,7 +13,7 @@ services:
     container_name: reactive_resume_postgres
     hostname: reactive_resume_postgres
     networks:
-    - '{{ secrets.TRAFIK_NETWORK }}'
+    - '{{ secrets.TRAEFIK_NETWORK }}'
     restart: unless-stopped
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
@@ -33,7 +33,7 @@ services:
     container_name: reactive_resume_minio
     hostname: reactive_resume_minio
     networks:
-    - '{{ secrets.TRAFIK_NETWORK }}'
+    - '{{ secrets.TRAEFIK_NETWORK }}'
     restart: unless-stopped
     command: server /data
     volumes:
@@ -48,7 +48,7 @@ services:
     container_name: reactive_resume_chrome
     hostname: reactive_resume_chrome
     networks:
-    - '{{ secrets.TRAFIK_NETWORK }}'
+    - '{{ secrets.TRAEFIK_NETWORK }}'
     restart: unless-stopped
     environment:
       TOKEN: chrome_token
@@ -61,7 +61,7 @@ services:
     container_name: reactive_resume_redis
     hostname: reactive_resume_redis
     networks:
-    - '{{ secrets.TRAFIK_NETWORK }}'
+    - '{{ secrets.TRAEFIK_NETWORK }}'
     restart: unless-stopped
     command: redis-server --requirepass password
 
@@ -70,7 +70,7 @@ services:
     container_name: reactive_resume_app
     hostname: reactive_resume_app
     networks:
-    - '{{ secrets.TRAFIK_NETWORK }}'
+    - '{{ secrets.TRAEFIK_NETWORK }}'
     restart: unless-stopped
     depends_on:
       - postgres

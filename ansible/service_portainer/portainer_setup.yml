@@ -69,5 +69,5 @@
           - /var/run/docker.sock:/var/run/docker.sock
           - "/home/{{ USERNAME }}/portainer_data:/data"
         networks:
-          - name: "{{ secrets.TRAFIK_NETWORK }}"
+          - name: "{{ secrets.TRAEFIK_NETWORK }}"
         labels: "{{ my_labels }}"

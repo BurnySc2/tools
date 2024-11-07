@@ -1,5 +1,5 @@
 networks:
-  '{{secrets.TRAFIK_NETWORK}}':
+  '{{secrets.TRAEFIK_NETWORK}}':
     external: true
 
 
@@ -11,7 +11,7 @@ services:
       - ./config:/var/www/baikal/config
       - ./data:/var/www/baikal/Specific
     networks:
-    - '{{ secrets.TRAFIK_NETWORK }}'
+    - '{{ secrets.TRAEFIK_NETWORK }}'
     labels:
     - traefik.enable=true
     - traefik.http.routers.{{ USERNAME }}.rule=Host(`{{ SUBDOMAIN }}.{{ secrets.MY_DOMAIN }}`)

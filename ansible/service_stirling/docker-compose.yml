@@ -1,5 +1,5 @@
 networks:
-  '{{secrets.TRAFIK_NETWORK}}':
+  '{{secrets.TRAEFIK_NETWORK}}':
     external: true
 
 version: '3.3'
@@ -7,7 +7,7 @@ services:
   stirling-pdf:
     image: frooodle/s-pdf:latest
     networks:
-      - '{{ secrets.TRAFIK_NETWORK }}'
+      - '{{ secrets.TRAEFIK_NETWORK }}'
     labels:
       - traefik.enable=true
       - traefik.http.routers.{{ SUBDOMAIN }}.rule=Host(`{{ SUBDOMAIN }}.{{ secrets.MY_DOMAIN }}`)

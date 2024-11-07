@@ -1,0 +1,25 @@
+- name: Check if "A-record" exists
+  ansible.builtin.uri:
+    url: "https://api.cloudflare.com/client/v4/zones/{{ secrets.CLOUDFLARE.DNS_ZONE_ID }}/dns_records?name={{ item.hostname }}"
+    method: GET
+    headers:
+      Content-Type: application/json
+      Authorization: "Bearer {{ secrets.CLOUDFLARE.DNS_API_TOKEN }}"
+    status_code: 200
+  register: dns_record_response
+
+- name: Create "A-record" for remote server
+  ansible.builtin.uri:
+    url: "https://api.cloudflare.com/client/v4/zones/{{ secrets.CLOUDFLARE.DNS_ZONE_ID }}/dns_records"
+    method: POST
+    headers:
+      Content-Type: application/json
+      Authorization: "Bearer {{ secrets.CLOUDFLARE.DNS_API_TOKEN }}"
+    body_format: json 
+    body:
+      name: "{{ item.hostname }}"
+      content: "{{ IPv4 }}"
+      type: "A"
+      proxied: false
+    status_code: 200
+  when: "dns_record_response.json.result_info.count == 0"

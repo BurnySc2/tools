@@ -1,5 +1,5 @@
 networks:
-  '{{secrets.TRAFIK_NETWORK}}':
+  '{{secrets.TRAEFIK_NETWORK}}':
     external: true
 
 # Don't forget to change IP in GUI from 127.0.0.1 to 0.0.0.0 if you want to expose it to the web
@@ -16,11 +16,11 @@ services:
     - PUID={{ USER_ID.stdout }}
     - PGID={{ GROUP_ID.stdout }}
     networks:
-    - '{{ secrets.TRAFIK_NETWORK }}'
+    - '{{ secrets.TRAEFIK_NETWORK }}'
     labels:
     - traefik.enable=true
-    - traefik.http.routers.{{ secrets.SYNCTHING.USERNAME }}.rule=Host(`{{ SUBDOMAIN }}.{{ secrets.MY_DOMAIN }}`)
-    - traefik.http.services.{{ secrets.SYNCTHING.USERNAME }}.loadbalancer.server.port={{ APPLICATION_PORT }}
-    - traefik.http.routers.{{ secrets.SYNCTHING.USERNAME }}.tls=true
-    - traefik.http.routers.{{ secrets.SYNCTHING.USERNAME }}.tls.certresolver=production
-    - traefik.http.routers.{{ secrets.SYNCTHING.USERNAME }}.middlewares=authelia@docker
+    - traefik.http.routers.{{ USERNAME }}.rule=Host(`{{ SYNCTHING_URL }}`)
+    - traefik.http.services.{{ USERNAME }}.loadbalancer.server.port={{ APPLICATION_PORT }}
+    - traefik.http.routers.{{ USERNAME }}.tls=true
+    - traefik.http.routers.{{ USERNAME }}.tls.certresolver=production
+    - traefik.http.routers.{{ USERNAME }}.middlewares=authelia@docker

@@ -1,27 +1,28 @@
 # Execute with
 # ansible-playbook setup_server.yml -i ../hosts -i /home/burny/syncthing/secrets/ansible_secrets/.ansible_secrets
 - name: After a fresh manjaro installation, install or upgrade all software
-  hosts: contabo
+  hosts: server_group1, server_group2, server_group3, server_group4
   tasks:
     - name: Install packages
       ansible.builtin.apt:
         name:
+        # Common
+        - rsync
+        - curl
+        - ffmpeg
+        - python3
+        - python3-pip
+        - python3-poetry
+        # Terminal
+        - fish
         # Task manager
         - btop
         # Disk analyzer
         - gdu
         # Video downloader
         - yt-dlp
-        # Terminal
-        - fish
-        # For backup
+        # Compression for backup
         - p7zip-full
-        # Video conversion
-        - ffmpeg
-        # Other
-        - python3
-        - python3-pip
-        - python3-poetry
         update_cache: true
         state: latest
         autoclean: true

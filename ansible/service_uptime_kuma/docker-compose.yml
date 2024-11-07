@@ -1,5 +1,5 @@
 networks:
-  '{{secrets.TRAFIK_NETWORK}}':
+  '{{secrets.TRAEFIK_NETWORK}}':
     external: true
 
 services:
@@ -9,7 +9,7 @@ services:
     image: louislam/uptime-kuma:1
     restart: unless-stopped
     networks:
-      - '{{ secrets.TRAFIK_NETWORK }}'
+      - '{{ secrets.TRAEFIK_NETWORK }}'
     labels:
       - traefik.enable=true
       - traefik.http.routers.{{ secrets.UPTIME_KUMA.USERNAME }}.rule=Host(`{{ secrets.UPTIME_KUMA.USERNAME }}.{{ secrets.MY_DOMAIN }}`)

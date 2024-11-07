@@ -1,5 +1,5 @@
 networks:
-  "{{secrets.TRAFIK_NETWORK}}":
+  "{{secrets.TRAEFIK_NETWORK}}":
     external: true
 
 services:
@@ -12,7 +12,7 @@ services:
     depends_on:
       - db
     networks:
-      - "{{ secrets.TRAFIK_NETWORK }}"
+      - "{{ secrets.TRAEFIK_NETWORK }}"
     environment:
       SONAR_JDBC_URL: jdbc:postgresql://sonarqube-db:5432/sonar
       SONAR_JDBC_USERNAME: '{{ secrets.SONARQUBE.POSTGRES_USER }}'
@@ -35,7 +35,7 @@ services:
     hostname: sonarqube-db
     restart: unless-stopped
     networks:
-      - "{{ secrets.TRAFIK_NETWORK }}"
+      - "{{ secrets.TRAEFIK_NETWORK }}"
     environment:
       POSTGRES_USER: '{{ secrets.SONARQUBE.POSTGRES_USER }}'
       POSTGRES_PASSWORD: '{{ secrets.SONARQUBE.POSTGRES_PASSWORD }}'

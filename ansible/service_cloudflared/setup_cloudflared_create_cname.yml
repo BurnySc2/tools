@@ -1,0 +1,25 @@
+- name: "Check if 'CNAME-record' exists for {{ item.hostname }}"
+  ansible.builtin.uri:
+    url: "https://api.cloudflare.com/client/v4/zones/{{ secrets.CLOUDFLARE.DNS_ZONE_ID }}/dns_records?name={{ item.hostname }}"
+    method: GET
+    headers:
+      Content-Type: application/json
+      Authorization: "Bearer {{ secrets.CLOUDFLARE.DNS_API_TOKEN }}"
+    status_code: 200
+  register: dns_records
+
+- name: "Create 'CNAME-record' for tunnel for {{ item.hostname }}"
+  ansible.builtin.uri:
+    url: "https://api.cloudflare.com/client/v4/zones/{{ secrets.CLOUDFLARE.DNS_ZONE_ID }}/dns_records"
+    method: POST
+    headers:
+      Content-Type: application/json
+      Authorization: "Bearer {{ secrets.CLOUDFLARE.DNS_API_TOKEN }}"
+    body_format: json 
+    body:
+      name: "{{ item.hostname }}"
+      content: "{{ tunnel_response.json.result[0].id }}.cfargotunnel.com"
+      type: "CNAME"
+      proxied: true
+    status_code: 200
+  when: "dns_records.json.result_info.count == 0"

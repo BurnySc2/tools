@@ -1,5 +1,5 @@
 networks:
-  '{{secrets.TRAFIK_NETWORK}}':
+  '{{secrets.TRAEFIK_NETWORK}}':
     external: true
 
 services:
@@ -8,7 +8,7 @@ services:
     container_name: jellyfin
     hostname: jellyfin
     networks:
-    - '{{ secrets.TRAFIK_NETWORK }}'
+    - '{{ secrets.TRAEFIK_NETWORK }}'
     restart: unless-stopped
     labels:
     - traefik.enable=true

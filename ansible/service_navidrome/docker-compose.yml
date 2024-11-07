@@ -1,5 +1,5 @@
 networks:
-  '{{secrets.TRAFIK_NETWORK}}':
+  '{{secrets.TRAEFIK_NETWORK}}':
     external: true
 
 services:
@@ -9,7 +9,7 @@ services:
     image: deluan/navidrome
     restart: unless-stopped
     networks:
-      - '{{ secrets.TRAFIK_NETWORK }}'
+      - '{{ secrets.TRAEFIK_NETWORK }}'
     labels:
       - traefik.enable=true
       - traefik.http.routers.{{ SUBDOMAIN }}.rule=Host(`{{ SUBDOMAIN }}.{{ secrets.MY_DOMAIN }}`)

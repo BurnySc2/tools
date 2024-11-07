@@ -16,7 +16,7 @@ ExecStart=/usr/bin/docker run \
     -l traefik.http.services.{{ USERNAME }}.loadbalancer.server.port=27015 \
     -l traefik.http.routers.{{ USERNAME }}.tls=true \
     -l traefik.http.routers.{{ USERNAME }}.tls.certresolver=production \
-    --network {{ secrets.TRAFIK_NETWORK }} \
+    --network {{ secrets.TRAEFIK_NETWORK }} \
     factoriotools/factorio
 Restart=always
 RestartSec=20
