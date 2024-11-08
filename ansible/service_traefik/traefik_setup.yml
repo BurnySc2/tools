@@ -39,7 +39,7 @@
       dest: /home/{{ USERNAME }}/docker-compose.yml
     when: "'remote_servers' in group_names"
 
-  - include_tasks: ../setup_cloudflare_a_record,yml
+  - include_tasks: ../setup_cloudflare_a_record.yml
     loop:
       - hostname: "{{ TRAEFIK_URL }}"
     loop_control:
