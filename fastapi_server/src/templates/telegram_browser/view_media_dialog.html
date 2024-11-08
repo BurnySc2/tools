@@ -12,6 +12,6 @@
     {% elif mime_type.startswith("image/") %}
     <img class="object-scale-down" src="{{ minio_url }}" alt="" />
     {% endif %}
-    <button class="mt-2 border-2 border-white p-1 text-white hover:bg-green-800"
+    <button class="mt-2 rounded-xl p-1 text-white ring-1 ring-white hover:bg-green-700"
         onclick="a=document.getElementById('view-media-dialog');a.close();a.replaceChildren()">Close</button>
 </div>

@@ -51,8 +51,8 @@ RESULT_COLUMNS = {
     "amount_of_reactions": "#Reactions",
     "amount_of_comments": "#Comments",
     "file_extension": "File type",
-    "file_size_bytes": "Size",
-    "file_duration_seconds": "Duration",
+    "file_size_bytes": "File Size",
+    "file_duration_seconds": "File Duration",
 }
 
 

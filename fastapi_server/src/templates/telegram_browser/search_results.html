@@ -14,7 +14,7 @@
             {% if row.metadata.status == "HasFile" %}
             {# REQUEST FILE TO DOWNLOAD #}
             {# TODO Convert into 'queued' symbol #}
-            <div class="w-8 cursor-copy hover:bg-yellow-300"
+            <div class="w-8 cursor-copy rounded-xl hover:bg-yellow-500"
                 hx-post="/telegram-browser/queue-file/{{ row.metadata.id }}" hx-swap="none">
                 <img src="/static/queue.svg" alt="">
             </div>
@@ -24,24 +24,24 @@
                 {# TODO poll data? #}
                 <img src="/static/spinner.svg" class="w-8 animate-spin" alt="">
             </div>
-            <div class="w-8 hover:bg-red-500">
+            <div class="w-8 rounded-xl hover:bg-red-500">
                 {# DELETE FILE #}
                 <img class="cursor-no-drop" src="/static/delete.svg" alt=""
                     hx-post="/telegram-browser/delete-file/{{ row.metadata.id }}">
             </div>
             {% elif row.metadata.status == "Downloaded" %}
             {# FILE HAS BEEN DOWNLOADED #}
-            <div class="w-8 hover:bg-green-300">
-                {# TODO VIEW FILE #}
+            <div class="w-8 rounded-xl hover:bg-green-500">
+                {# VIEW FILE #}
                 <img id="" class="open-view-media-dialog cursor-pointer" src="/static/play.svg" alt=""
                     hx-get="/telegram-browser/view-file/{{ row.metadata.id }}" hx-target="#view-media-dialog">
             </div>
-            <div class="w-8 hover:bg-green-300">
+            <div class="w-8 rounded-xl hover:bg-green-500">
                 {# DOWNLOAD FILE #}
                 <img class="cursor-pointer" src="/static/download.svg" alt=""
                     hx-get="/telegram-browser/download-file/{{ row.metadata.id }}">
             </div>
-            <div class="w-8 hover:bg-red-500">
+            <div class="w-8 rounded-xl hover:bg-red-500">
                 {# DELETE FILE #}
                 <img class="cursor-no-drop" src="/static/delete.svg" alt=""
                     hx-post="/telegram-browser/delete-file/{{ row.metadata.id }}">
