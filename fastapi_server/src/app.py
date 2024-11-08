@@ -18,6 +18,7 @@ from src.routes.audiobook.index import MyAudiobookIndexRoute
 from src.routes.hello_world import MyRootRoute
 from src.routes.login_logout import MyLoginRoute, MyLogoutRoute
 from src.routes.telegram_browser.telegram_browser import MyTelegramBrowserRoute
+from src.routes.temp_multiswap import MyMultiswapRoute
 from src.routes.text_to_speech import MyTTSRoute
 from src.routes.tts.websocket_handler import TTSQueue, TTSWebsocketHandler
 from src.workers.prevent_overflowing_audiobook_bucket import prevent_overflowing_audiobook_bucket
@@ -55,6 +56,7 @@ app = Litestar(
         # MyChatRoute,
         MyLoginRoute,
         MyLogoutRoute,
+        MyMultiswapRoute,
         MyRootRoute,
         MyTelegramBrowserRoute,
         # MyTodoRoute,

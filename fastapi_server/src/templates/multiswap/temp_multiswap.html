@@ -1,0 +1,11 @@
+{% if refresh_items|length == 0 %}
+<input id="refresher" name="refresher" value="" placeholder="Done refreshing!" readonly>
+{% else %}
+<input id="refresher" name="refresher" hx-post="/multi-swap-test/swap-elements" hx-trigger="every 2000ms"
+    hx-select="#refresher" hx-swap="outerHTML" hx-select-oob="{{ ','.join(refresh_items) }}"
+    value="{{ ';'.join(refresh_items) }}" readonly>
+{% endif %}
+
+{% for item in items %}
+<div id="{{ item.id }}">{{ item.text }}</div>
+{% endfor %}
