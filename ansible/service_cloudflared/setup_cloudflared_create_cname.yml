@@ -1,6 +1,6 @@
 - name: "Check if 'CNAME-record' exists for {{ item.hostname }}"
   ansible.builtin.uri:
-    url: "https://api.cloudflare.com/client/v4/zones/{{ secrets.CLOUDFLARE.DNS_ZONE_ID }}/dns_records?name={{ item.hostname }}"
+    url: "https://api.cloudflare.com/client/v4/zones/{{ secrets.CLOUDFLARE.DNS_ZONE_ID }}/dns_records?name={{ item.hostname }}&type=CNAME"
     method: GET
     headers:
       Content-Type: application/json
@@ -23,6 +23,6 @@
       type: "CNAME"
       proxied: true
     status_code: 200
-  changed_when: dns_record_response.json.result_info.count != 1
-  when: "dns_record_response.json.result_info.count != 1"
+  changed_when: dns_record_response.json.result_info.count == 0
+  when: "dns_record_response.json.result_info.count == 0"
   delegate_to: 127.0.0.1
