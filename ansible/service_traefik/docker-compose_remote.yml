@@ -1,5 +1,5 @@
 networks:
-  '{{ secrets.TRAEFIK_NETWORK }}':
+  "{{ secrets.TRAEFIK_NETWORK }}":
     external: true
 
 services:
@@ -8,20 +8,24 @@ services:
     container_name: "traefik"
     hostname: "traefik"
     networks:
-    - '{{ secrets.TRAEFIK_NETWORK }}'
+      - "{{ secrets.TRAEFIK_NETWORK }}"
     ports:
       # The HTTP port
-    - 80:80
-      # The HTTPS port
-    - 443:443
+      - 80:80
+        # The HTTPS port
+      - 443:443
+        # The TCP port
+      - 5432:5432
     command:
       - "--api.insecure=false"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network={{ secrets.TRAEFIK_NETWORK }}"
       - "--entryPoints.web.address=:80"
       - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
       - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
       - "--entryPoints.websecure.address=:443"
+      - "--entrypoints.pgsql.address=:5432"
       # Disable challenge while A-recosd is still pending to not spam letsencrypt
       - "--certificatesresolvers.production.acme.email={{ secrets.TRAEFIK.MY_EMAIL }}"
       - "--certificatesresolvers.production.acme.storage=/etc/traefik/acme.json"

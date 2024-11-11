@@ -1,5 +1,5 @@
 networks:
-  '{{ secrets.TRAEFIK_NETWORK }}':
+  "{{ secrets.TRAEFIK_NETWORK }}":
     external: true
 
 services:
@@ -8,15 +8,17 @@ services:
     container_name: "traefik"
     hostname: "traefik"
     networks:
-    - '{{ secrets.TRAEFIK_NETWORK }}'
+      - "{{ secrets.TRAEFIK_NETWORK }}"
     command:
       - "--api.insecure=true"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network={{ secrets.TRAEFIK_NETWORK }}"
       - "--entryPoints.web.address=:80"
       - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
       - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
       - "--entryPoints.websecure.address=:443"
+      - "--entrypoints.pgsql.address=:5432"
     volumes:
       # ssl is managed by cloudflarez
       - /var/run/docker.sock:/var/run/docker.sock:ro

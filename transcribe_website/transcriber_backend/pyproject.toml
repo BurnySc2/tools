@@ -3,7 +3,7 @@ name = "transcriber-backend"
 version = "0.1.0"
 description = ""
 authors = ["BuRny <gamingburny@gmail.com>"]
-package-mode = false
+#package-mode = false
 
 [tool.poetry.dependencies]
 python = ">=3.10, <3.14"
@@ -46,7 +46,7 @@ pyre-check = "^0.9.18"
 [[tool.poetry.source]]
 name = "pytorch_cpu"
 url = "https://download.pytorch.org/whl/cpu"
-priority = "explicit"
+# priority = "explicit"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

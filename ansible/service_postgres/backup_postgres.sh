@@ -43,7 +43,7 @@ zipargs=(
     -t7z
     # Require password before seeing files: hide file structure
     -mhe=on
-    # Compression level
+    # Compression level, not needed because already compressed with zstd
     -mx0
     # Set password
     "-p$PASSWORD"

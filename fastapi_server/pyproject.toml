@@ -3,7 +3,7 @@ name = "fastapi-server"
 version = "0.1.0"
 description = ""
 authors = ["BuRny <gamingburny@gmail.com>"]
-package-mode = false
+#package-mode = false
 
 [tool.poetry.dependencies]
 # Drop python <=3.9 support because syntax "var: int | None" is not supported 
@@ -48,6 +48,8 @@ psutil = "^5"
 toml = "^0"
 # Linter and autoformat
 ruff = "^0"
+# HTML formatter
+djlint = "^1.36.1"
 # Type checker
 pyre-check = "^0"
 # Analyze depenencies

@@ -1,7 +1,7 @@
 x-services-fragments:
   webserver: &webserver
-    image: burnysc2/fastapi_server:latest_dev
-    pull_policy: always
+    image: burnysc2/litestar_server:latest_dev
+    pull_policy: never
     command: poetry run litestar --app-dir src run --wc 1 --host 0.0.0.0 --port 8000
     restart: unless-stopped
     container_name: litestar_server
@@ -10,8 +10,8 @@ x-services-fragments:
       - .env
 
   convert_audiobook_worker: &convert_audiobook_worker
-    image: burnysc2/fastapi_server:latest_dev
-    pull_policy: always
+    image: burnysc2/litestar_server:latest_dev
+    pull_policy: never
     command:
       [
         "sh",
@@ -43,11 +43,13 @@ services:
       - traefik.http.services.fastapi.loadbalancer.server.port=8000
       - traefik.http.routers.fastapi.tls=true
       - traefik.http.routers.fastapi.tls.certresolver=production
+      - traefik.http.routers.fastapi.entryPoints=web,websecure
       # Redirect for www.burnysc2.xyz to burnysc2.xyz
       - traefik.http.routers.www-fastapi.rule=Host(`www.burnysc2.xyz`)
       - traefik.http.routers.www-fastapi.middlewares=redirect-to-non-www
       - traefik.http.routers.www-fastapi.tls=true
       - traefik.http.routers.www-fastapi.tls.certresolver=production
+      - traefik.http.routers.www-fastapi.entryPoints=web,websecure
       - traefik.http.middlewares.redirect-to-non-www.redirectregex.regex=^https?://www\.burnysc2\.xyz/(.*)
       - traefik.http.middlewares.redirect-to-non-www.redirectregex.replacement=https://burnysc2.xyz/$${1}
       - traefik.http.middlewares.redirect-to-non-www.redirectregex.permanent=true
@@ -56,6 +58,7 @@ services:
       - traefik.http.routers.apidev-fastapi.middlewares=redirect-to-non-apidev
       - traefik.http.routers.apidev-fastapi.tls=true
       - traefik.http.routers.apidev-fastapi.tls.certresolver=production
+      - traefik.http.routers.apidev-fastapi.entryPoints=web,websecure
       - traefik.http.middlewares.redirect-to-non-apidev.redirectregex.regex=^https?://apidev\.burnysc2\.xyz/(.*)
       - traefik.http.middlewares.redirect-to-non-apidev.redirectregex.replacement=https://burnysc2.xyz/$${1}
       - traefik.http.middlewares.redirect-to-non-apidev.redirectregex.permanent=true

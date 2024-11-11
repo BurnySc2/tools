@@ -3,7 +3,7 @@ name = "discord_bot"
 version = "0.1.0"
 description = ""
 authors = ["BuRny <gamingburny@gmail.com>"]
-package-mode = false
+#package-mode = false
 
 [tool.poetry.dependencies]
 python = ">=3.9, <3.13"
@@ -52,20 +52,20 @@ line-length = 120
 # Allow unused variables when underscore-prefixed.
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 select = [
-    "C4", # flake8-comprehensions
-    "E",  # Error
-    "F",  # pyflakes
-    "BLE",  # flake8-blind-except
-    "I",  # isort
-    "N",  # pep8-naming
-    "PGH",  # pygrep-hooks
+    "C4",  # flake8-comprehensions
+    "E",   # Error
+    "F",   # pyflakes
+    "BLE", # flake8-blind-except
+    "I",   # isort
+    "N",   # pep8-naming
+    "PGH", # pygrep-hooks
     "PTH", # flake8-use-pathlib
-    "SIM",  # flake8-simplify
-    "W",  # Warning
-    "Q",  # flake8-quotes
+    "SIM", # flake8-simplify
+    "W",   # Warning
+    "Q",   # flake8-quotes
     "YTT", # flake8-2020
     "UP",  # pyupgrade
-#    "A",  # flake8-builtins
+    #    "A",  # flake8-builtins
 ]
 
 [tool.ruff.pyupgrade]

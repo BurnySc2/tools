@@ -1,32 +1,43 @@
 # Execute with
 # ansible-playbook minio_setup.yml -i ../hosts -i /home/burny/syncthing/secrets/ansible_secrets/.ansible_secrets
 - name: Create and start minio service
-  hosts: my_servers
+  hosts: server_group4
   vars:
     USERNAME: "{{ secrets.MINIO.USERNAME }}"
-    SUBDOMAIN: "{{ secrets.MINIO.SUBDOMAIN }}"
     APPLICATION_PORT: "9001"
     APPLICATION_PORT_API: "9000"
   tasks:
-  - name: Create group
-    ansible.builtin.group:
-      name: '{{ USERNAME }}'
-      state: present
+    - include_tasks: ../setup_cloudflare_a_record.yml
+      loop:
+        - hostname: "minio.{{ secrets.MY_DOMAIN }}"
+        - hostname: "minioadmin.{{ secrets.MY_DOMAIN }}"
+      loop_control:
+        loop_var: item
+      when: "'remote_servers' in group_names"
 
-  - name: Create user
-    ansible.builtin.user:
-      name: '{{ USERNAME }}'
-      groups:
-      - '{{ USERNAME }}'
-      - docker
-      shell: '{{ secrets.DEFAULT_SHELL }}'
+    - name: Create group
+      ansible.builtin.group:
+        name: "{{ USERNAME }}"
+        state: present
 
-  - name: Copy docker-compose.yml file
-    template:
-      src: docker-compose.yml
-      dest: /home/{{ USERNAME }}/docker-compose.yml
-      
-  - name: Run `docker-compose up` again
-    community.docker.docker_compose_v2:
-      project_src: /home/{{ USERNAME }}
-      pull: always
+    - name: Create user
+      ansible.builtin.user:
+        name: "{{ USERNAME }}"
+        groups:
+          - "{{ USERNAME }}"
+          - docker
+        shell: "{{ secrets.DEFAULT_SHELL }}"
+
+    - name: Copy docker-compose.yml file
+      template:
+        src: docker-compose.yml
+        dest: /home/{{ USERNAME }}/docker-compose.yml
+
+    - name: Run `docker-compose up` again
+      community.docker.docker_compose_v2:
+        project_src: /home/{{ USERNAME }}
+        pull: always
+
+    - name: Reminder on bucket creation
+      ansible.builtin.debug:
+        msg: "TODO Create access-key and update it in the required .env files"

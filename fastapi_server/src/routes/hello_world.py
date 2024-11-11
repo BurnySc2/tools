@@ -13,8 +13,12 @@ STAGE: Literal["local_dev", "dev", "prod", "test"] = os.getenv("STAGE")  # pyre-
 class MyRootRoute(Controller):
     path = "/"
 
-    @get("/test")
+    @get("/")
     async def index(self) -> str:
+        return "Welcome!"
+
+    @get("/test")
+    async def test(self) -> str:
         return "Hello, world!"
 
     @get("/health-check")
