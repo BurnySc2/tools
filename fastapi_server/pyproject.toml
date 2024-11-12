@@ -48,8 +48,6 @@ psutil = "^5"
 toml = "^0"
 # Linter and autoformat
 ruff = "^0"
-# HTML formatter
-djlint = "^1.36.1"
 # Type checker
 pyre-check = "^0"
 # Analyze depenencies

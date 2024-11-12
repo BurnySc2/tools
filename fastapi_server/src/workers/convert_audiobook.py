@@ -1,3 +1,7 @@
+"""
+TODO Keep service running, but spawn new workers if there are tasks to do, up to N workers
+Requires proper observing if workers completed (success/fail), only then spawn new ones
+"""
 from __future__ import annotations
 
 import asyncio

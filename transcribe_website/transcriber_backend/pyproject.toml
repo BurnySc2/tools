@@ -36,17 +36,16 @@ numpy = "<2"
 whisperx = "^3.1.5"
 faster-whisper = "1.0.1"
 
-
 [tool.poetry.group.dev.dependencies]
 # Linter
 ruff = "^0.1.14"
 # Type checker
-pyre-check = "^0.9.18"
+pyre-check = "^0.9.23"
 
 [[tool.poetry.source]]
 name = "pytorch_cpu"
 url = "https://download.pytorch.org/whl/cpu"
-# priority = "explicit"
+priority = "explicit"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

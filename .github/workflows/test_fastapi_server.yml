@@ -13,8 +13,6 @@ on:
 
 env:
   SUBDIRECTORY: fastapi_server
-  IMAGENAME: fastapi_server
-  VERSION_NUMBER: 1.1.1
 
 jobs:
   run_pre_commit_checks:
@@ -87,88 +85,3 @@ jobs:
     - name: Run pytest
       working-directory: ${{ env.SUBDIRECTORY }}
       run: poetry run python -m pytest test --random-order
-
-  build_and_deploy_docker_image:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest]
-    runs-on: ${{ matrix.os }}
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Build docker image
-      working-directory: ${{ env.SUBDIRECTORY }}
-      run: |
-        docker build -t burnysc2/${{ env.IMAGENAME }}:latest .
-        docker build -t burnysc2/${{ env.IMAGENAME }}:latest_dev .
-        docker build -t burnysc2/${{ env.IMAGENAME }}:${{ env.VERSION_NUMBER}} .
-
-    - name: Login to DockerHub
-      uses: docker/login-action@v3
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-    - id: wait-for-jobs
-      uses: yogeshlonkar/wait-for-jobs@v0
-      with:
-        gh-token: ${{ secrets.GITHUB_TOKEN }}
-        jobs: |
-          pre_commit_check_py3.10
-          pre_commit_check_py3.11
-          pre_commit_check_py3.12
-          test_backend_py3.10
-          test_backend_py3.11
-          test_backend_py3.12
-
-    - name: Upload docker image (develop)
-      if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
-      run: |
-        docker push burnysc2/${{ env.IMAGENAME }}:latest_dev
-        docker push burnysc2/${{ env.IMAGENAME }}:${{ env.VERSION_NUMBER}}
-
-    - name: Upload docker image (master)
-      if: github.ref == 'refs/heads/master' && github.event_name == 'push'
-      run: docker push burnysc2/${{ env.IMAGENAME }}:latest
-
-  deploy_backend:
-    if: github.ref == 'refs/heads/develop'
-    needs: [build_and_deploy_docker_image]
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-    runs-on: ${{ matrix.os }}
-    env:
-      USERNAME: fastapidev
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Update docker-compose.yml
-      uses: appleboy/scp-action@v0.1.7
-      with:
-        host: ${{ secrets.HOST }}
-        port: 22
-        username: ${{ env.USERNAME }}
-        key: ${{ secrets.FASTAPISERVERDEVKEY }}
-        passphrase: ''
-        source: "fastapi_server/docker-compose.yml"
-        target: /home/${{ env.USERNAME }}/
-        strip_components: 1
-        # overwrite: true
-
-    - name: Update docker image on server and restart server
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ secrets.HOST }}
-        port: 22
-        username: ${{ env.USERNAME }}
-        key: ${{ secrets.FASTAPISERVERDEVKEY }}
-        passphrase: ''
-        script: |
-          cd /home/${{ env.USERNAME }}
-          docker compose --profile prod pull
-          docker compose --profile prod down
-          docker compose --profile prod up -d

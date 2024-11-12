@@ -12,8 +12,6 @@ on:
 
 env:
   SUBDIRECTORY: twitch_stream_announcer
-  IMAGENAME: twitch_stream_announcer
-  VERSION_NUMBER: 1.0.1
 
 jobs:
   test_stream_announcer:
@@ -41,72 +39,3 @@ jobs:
     - name: Run code checks and tests
       working-directory: ${{ env.SUBDIRECTORY }}
       run: earthly +all --verbose true --PYTHONVERSION=${{ matrix.python-version }}
-
-  build_and_deploy_docker_image:
-    needs: [test_stream_announcer]
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest]
-    runs-on: ${{ matrix.os }}
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Build docker image
-      working-directory: ${{ env.SUBDIRECTORY }}
-      run: |
-        docker build -t burnysc2/${{ env.IMAGENAME }}:latest .
-        docker build -t burnysc2/${{ env.IMAGENAME }}:${{ env.VERSION_NUMBER}} .
-
-    - name: Login to DockerHub
-      uses: docker/login-action@v3
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-    - name: Upload docker image (develop)
-      if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
-      run: |
-        docker push burnysc2/${{ env.IMAGENAME }}:${{ env.VERSION_NUMBER}}
-        docker push burnysc2/${{ env.IMAGENAME }}:latest
-
-  deploy_backend_dev:
-    if: github.ref == 'refs/heads/develop'
-    needs: [build_and_deploy_docker_image]
-    strategy:
-      matrix:
-        os: [ubuntu-latest]
-    runs-on: ${{ matrix.os }}
-    env:
-      USERNAME: announcer
-
-    steps:
-    - uses: actions/checkout@v4
-
-    - name: Update docker-compose.yml
-      uses: appleboy/scp-action@v0.1.7
-      with:
-        host: ${{ secrets.HOST }}
-        port: 22
-        username: ${{ env.USERNAME }}
-        key: ${{ secrets.FASTAPISERVERDEVKEY }}
-        passphrase: ''
-        source: "twitch_stream_announcer/docker-compose.yml"
-        target: /home/${{ env.USERNAME }}/
-        strip_components: 1
-        # overwrite: true
-
-    - name: Update docker image on server and restart service
-      uses: appleboy/ssh-action@v1.0.3
-      with:
-        host: ${{ secrets.HOST }}
-        port: 22
-        username: ${{ env.USERNAME }}
-        key: ${{ secrets.FASTAPISERVERDEVKEY }}
-        passphrase: ''
-        script: |
-          cd /home/${{ env.USERNAME }}
-          docker compose pull
-          docker compose down
-          docker compose up -d
