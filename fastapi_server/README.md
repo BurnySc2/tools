@@ -2,7 +2,7 @@
 
 ## Requirements
 
-- Python >=3.8.1 <3.13 with `poetry` installed
+- Python >=3.8.1 <3.13 with `uv` installed
 - Docker with docker compose installed
 
 ## Launch local dev server
@@ -14,18 +14,17 @@ docker compose --profile dev up
 
 Install dependencies with 
 ```sh
-poetry env use python3
-poetry install
+uv sync
 ```
 
 Open a Python file in the `fastapi_server` folder and select the correct python environment in the bottom right of vscode.
 
-Start webserver with `poetry run python src/app.py` or via the vscode debug config `Start LiteStar`.
+Start webserver with `uv run src/app.py` or via the vscode debug config `Start LiteStar`.
 
 If you run it for the first time, the database schema needs to be generated and pushed to postgres
 ```sh
-poetry run prisma generate
-poetry run prisma db push
+uv run prisma generate
+uv run prisma migrate reset
 ```
 
 Now you can go to http://0.0.0.0:8000 or http://0.0.0.0:8000/schema to check out the documentation to all endpoints.

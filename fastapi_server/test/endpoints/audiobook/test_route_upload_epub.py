@@ -14,10 +14,10 @@ from minio import Minio, S3Error
 from pytest_httpx import HTTPXMock
 
 from prisma import Prisma
-from src.routes.caches import global_cache
-from src.workers import convert_audiobook
-from src.workers.convert_audiobook import convert_one
+from routes.caches import global_cache
 from test.base_test import log_in_with_twitch, test_client, test_client_db_reset, test_minio_client  # noqa: F401
+from workers import convert_audiobook
+from workers.convert_audiobook import convert_one
 
 _test_client = test_client
 _test_client_db_reset = test_client_db_reset
@@ -50,7 +50,7 @@ async def test_index_route_has_upload_button(test_client_db_reset: TestClient, h
         ("actual_books/the-war-of-the-worlds.epub", 1, 29),
     ],
 )
-@pytest.mark.httpx_mock(non_mocked_hosts=["localhost"])
+@pytest.mark.httpx_mock(should_mock=lambda request: request.url.host not in ["localhost"])
 @pytest.mark.asyncio
 async def test_index_route_upload_epub(
     book_relative_path: str, book_id: int, chapters_amount: int, test_client_db_reset: TestClient, httpx_mock: HTTPXMock
@@ -83,7 +83,7 @@ async def test_index_route_upload_epub(
 
 
 # Test post request to "/" book already exists
-@pytest.mark.httpx_mock(non_mocked_hosts=["localhost"])
+@pytest.mark.httpx_mock(should_mock=lambda request: request.url.host not in ["localhost"])
 @pytest.mark.asyncio
 async def test_index_route_upload_epub_twice(test_client_db_reset: TestClient, httpx_mock: HTTPXMock) -> None:  # noqa: F811
     await global_cache.delete_all()
@@ -109,7 +109,7 @@ async def test_index_route_upload_epub_twice(test_client_db_reset: TestClient, h
 
 
 # Test "/delete_book" can remove book
-@pytest.mark.httpx_mock(non_mocked_hosts=["localhost"])
+@pytest.mark.httpx_mock(should_mock=lambda request: request.url.host not in ["localhost"])
 @pytest.mark.asyncio
 async def test_delete_book_works(test_client_db_reset: TestClient, httpx_mock: HTTPXMock) -> None:  # noqa: F811
     await global_cache.delete_all()
@@ -164,7 +164,7 @@ async def test_delete_book_works(test_client_db_reset: TestClient, httpx_mock: H
 
 
 # Test "/generate_audio" can generate audio for a chapter
-@pytest.mark.httpx_mock(non_mocked_hosts=["localhost"])
+@pytest.mark.httpx_mock(should_mock=lambda request: request.url.host not in ["localhost"])
 @pytest.mark.asyncio
 async def test_generate_audio_for_chapter(
     test_client_db_reset: TestClient, test_minio_client: Minio, httpx_mock: HTTPXMock
@@ -313,7 +313,7 @@ async def test_generate_audio_for_chapter(
 # TODO Mark test as slow?
 # Test "/generate_audio_book" requests audio for all chapters
 # and "/download_book_zip" generates zip file with audio files of all chapters
-@pytest.mark.httpx_mock(non_mocked_hosts=["localhost"])
+@pytest.mark.httpx_mock(should_mock=lambda request: request.url.host not in ["localhost"])
 @pytest.mark.asyncio
 async def test_generate_audio_for_entire_book(
     test_client_db_reset: TestClient, test_minio_client: Minio, httpx_mock: HTTPXMock

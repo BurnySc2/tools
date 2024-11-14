@@ -68,20 +68,17 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Install poetry
-      run: pip install poetry --no-cache-dir poetry==1.8
-
-    - name: Make poetry use local .venv folder
-      run: poetry config virtualenvs.in-project true
+    - name: Install uv
+      run: pip install uv
 
     - name: Install packages
       working-directory: ${{ env.SUBDIRECTORY }}
-      run: poetry install
+      run: uv sync --frozen --no-cache --no-install-project
 
     - name: Generate prisma types
       working-directory: ${{ env.SUBDIRECTORY }}
-      run: poetry run prisma generate
+      run: uv run --frozen prisma generate
 
     - name: Run pytest
       working-directory: ${{ env.SUBDIRECTORY }}
-      run: poetry run python -m pytest test --random-order
+      run: uv run pytest test --random-order

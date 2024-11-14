@@ -1,61 +1,64 @@
-[tool.poetry]
-name = "fastapi-server"
+[project]
+name = "src"
 version = "0.1.0"
-description = ""
-authors = ["BuRny <gamingburny@gmail.com>"]
-#package-mode = false
+requires-python = ">=3.10, <3.13"
+dependencies = [
+    # Time management
+    "arrow>=1.3.0",
+    # xml parsing
+    "beautifulsoup4>=4.12.3",
+    # Epub Parsing
+    "ebooklib>=0.18",
+    # Web requests (sync + async)
+    "httpx>=0.27.2",
+    # Websockets for httpx
+    "httpx-ws>=0.6.2",
+    # Fastapi alternative https://docs.litestar.dev/latest/
+    "litestar[standard]>=2.12.1",
+    # Simple logger
+    "loguru>=0.7.2",
+    # Analyse mp3 files in memory
+    "mutagen>=1.47.0",
+    # Language manipulation
+    "nltk>=3.9.1",
+    # Database
+    "prisma>=0.15.0",
+    # Dataclasses with type validation
+    "pydantic>=2.9.2",
+    # PDF Parsing
+    "pymupdf>=1.24.13",
+    # Load .env files easily
+    "python-dotenv>=1.0.1",
+    # Audio generation
+    "edge-tts>=6.1.18",
+    # Zip files with low memory footprint
+    "stream-zip>=0.0.83",
+    # AWS S3
+    "minio>=7.2.10",
+    "humanize>=4.11.0",
+]
 
-[tool.poetry.dependencies]
-# Drop python <=3.9 support because syntax "var: int | None" is not supported 
-python = ">=3.10 <3.13"
-# Simple logger
-loguru = "^0.7"
-# Fastapi alternative https://docs.litestar.dev/latest/
-litestar = { extras = ["standard"], version = "^2.5.1" }
-# Web requests (sync + async)
-httpx = "^0"
-httpx-ws = "^0"      # Websockets for httpx
-arrow = "^1"         # Time management
-python-dotenv = "^1" # Load .env files easily
-pydantic = "^2"      # Dataclasses with type validation
-nltk = "^3"          # Language manipulation
-mutagen = "^1"       # Analyse mp3 files in memory
-# Database
-prisma = "^0"
-# PDF Parsing
-pymupdf = "^1"
-# Epub Parsing
-ebooklib = "^0"       # epub parsing
-beautifulsoup4 = "^4" # xml parsing
-# Other
-edge-tts = "^6"      # Audio generation
-stream-zip = "^0"    # Zip files with low memory footprint
-minio = "^7"         # AWS S3
-humanize = "^4.11.0"
-
-[tool.poetry.group.dev.dependencies]
-# Test library
-pytest = "^8"
-pytest-asyncio = "^0"          # Async await support
-pytest-benchmark = "^4"
-pytest-httpx = "^0"            # Mock requests
-pytest-env = "^1"              # Set different env while testing
-pytest-random-order = "^1.1.1"
-# Property based testing
-hypothesis = "^6"
-# Info about the system
-psutil = "^5"
-toml = "^0"
-# Linter and autoformat
-ruff = "^0"
-# Type checker
-pyre-check = "^0"
-# Analyze depenencies
-pipdeptree = "^2"
-
-[build-system]
-requires = ["poetry-core>=1.2.0"]
-build-backend = "poetry.core.masonry.api"
+[tool.uv]
+dev-dependencies = [
+    # Property based testing
+    "hypothesis>=6.118.8",
+    # Info about the system
+    "psutil>=6.1.0",
+    # Type checker
+    "pyre-check>=0.9.23",
+    "pytest>=8.3.3",
+    # Async await support
+    "pytest-asyncio>=0.24.0",
+    "pytest-benchmark>=5.1.0",
+    # Set different env while testing
+    "pytest-env>=1.1.5",
+    # Mock requests
+    "pytest-httpx>=0.33.0",
+    "pytest-random-order>=1.1.1",
+    # Linter and autoformat
+    "ruff>=0.7.3",
+    "toml>=0.10.2",
+]
 
 [tool.yapf]
 based_on_style = "pep8"
@@ -89,6 +92,9 @@ select = [
 [tool.ruff.pep8-naming]
 # Allow Pydantic's `@validator` decorator to trigger class method treatment.
 classmethod-decorators = ["pydantic.validator", "classmethod"]
+
+[tool.pytest.ini_options]
+pythonpath = "src"
 
 [tool.pytest_env]
 # Env variables to be used while tests run

@@ -2,7 +2,7 @@ import pytest
 from litestar.status_codes import HTTP_200_OK
 from litestar.testing import AsyncTestClient
 
-from src.app import app
+from app import app
 
 
 @pytest.mark.asyncio

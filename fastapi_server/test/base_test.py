@@ -7,9 +7,9 @@ from litestar.testing import TestClient
 from minio import Minio
 from pytest_httpx import HTTPXMock
 
+from app import app
 from prisma.cli import prisma
-from src.app import app
-from src.routes.login_logout import COOKIES
+from routes.login_logout import COOKIES
 
 
 @pytest.fixture(scope="function")

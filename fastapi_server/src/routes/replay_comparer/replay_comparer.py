@@ -31,7 +31,8 @@ index.html
 compared_replays.html
 - Display timings and graphs
     - Allow adding timings
-        - Dropdown menu (nth unit type produced, nth upgrade started, n worker count reached, n supply reached, n army supply reached), save to cookies
+        - Dropdown menu (nth unit type produced, nth upgrade started, n worker count reached,
+        n supply reached, n army supply reached), save to cookies
     - Allow removing timings, save to cookies
     - Select graph (backend rendering after selecting another?)
 - Have hidden input field (with compressed replay data) that will send data to backend to render it?

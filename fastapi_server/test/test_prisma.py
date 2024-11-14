@@ -46,7 +46,7 @@ async def test_prisma_check_without_httpx_fixture(test_client: TestClient[Litest
 
 
 @pytest.mark.asyncio
-@pytest.mark.httpx_mock(non_mocked_hosts=["localhost"])
+@pytest.mark.httpx_mock(should_mock=lambda request: request.url.host not in ["localhost"])
 async def test_prisma_check_with_httpx_fixture(test_client: TestClient[Litestar], httpx_mock: HTTPXMock) -> None:
     async with Prisma() as db:
         results = await db.audiobookbook.find_many(where={})

@@ -3,7 +3,7 @@ import io
 
 import edge_tts
 
-from src.routes.caches import global_cache
+from routes.caches import global_cache
 
 
 async def get_supported_voices() -> list[str]:

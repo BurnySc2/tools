@@ -2,21 +2,51 @@
 
 <body class="flex h-screen flex-col">
     {% include "nav.html" with context %}
-    <main id="main" class="h-full">
+    <main
+        id="main"
+        class="h-full"
+    >
         <div class="flex h-full flex-col items-center justify-center bg-gray-300">
-            <div id="spinner" class="htmx-indicator flex flex-col" style="margin: 1rem;">
+            <div
+                id="spinner"
+                class="htmx-indicator flex flex-col"
+                style="margin: 1rem;"
+            >
                 <div class="flex">
-                    <img class="htmx-spinner w-8 animate-spin" src="/static/spinner.svg" />
+                    <img
+                        class="htmx-spinner w-8 animate-spin"
+                        src="/static/spinner.svg"
+                    />
                     {# When done uploading, show: processing #}
                     <span>Uploading...</span>
                 </div>
-                <progress id='progress' class="progress" value='0' max='100'></progress>
+                <progress
+                    id='progress'
+                    class="progress"
+                    value='0'
+                    max='100'
+                ></progress>
             </div>
-            <form id="form" class="flex flex-col place-items-center items-center justify-items-center gap-4 text-center"
-                enctype="multipart/form-data" hx-post="/audiobook/epub_upload" hx-trigger="submit" hx-target="#main"
-                hx-swap="innerHTML" hx-indicator="#spinner">
-                <input class="self-center border-2 border-black" type="file" name="file" accept=".epub">
-                <button type="submit" class="flex rounded-3xl border-4 border-black p-4 hover:bg-green-300">Upload
+            <form
+                id="form"
+                class="flex flex-col place-items-center items-center justify-items-center gap-4 text-center"
+                enctype="multipart/form-data"
+                hx-post="/audiobook/epub_upload"
+                hx-trigger="submit"
+                hx-target="#main"
+                hx-swap="innerHTML"
+                hx-indicator="#spinner"
+            >
+                <input
+                    class="self-center border-2 border-black"
+                    type="file"
+                    name="file"
+                    accept=".epub"
+                >
+                <button
+                    type="submit"
+                    class="flex rounded-3xl border-4 border-black p-4 hover:bg-green-300"
+                >Upload
                     epub</button>
             </form>
         </div>

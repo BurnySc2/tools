@@ -153,7 +153,7 @@ async def generate_tts(voice: Voices, text: str) -> tuple[str, float]:
                 continue
             data = response.json()
 
-            status_code: int = data["status_code"]
+            status_code = data["status_code"]
             # message: str = data["message"]
             # status_msg: str = data["status_msg"]
             if status_code == 0:

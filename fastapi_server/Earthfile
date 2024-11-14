@@ -1,7 +1,7 @@
 VERSION 0.6
 # earthly +all --PYTHONVERSION=3.11
 ARG PYTHONVERSION=3.12
-FROM python:${PYTHONVERSION}-slim
+FROM ghcr.io/astral-sh/uv:python${PYTHONVERSION}-bookworm-slim
 WORKDIR /root/fastapi_server
 
 install-dev:
@@ -10,12 +10,10 @@ install-dev:
     #     && apt-get -qq install --no-install-recommends \
     #     npm \
     #     && rm -rf /var/lib/apt/lists/*
-    RUN pip install --no-cache-dir poetry==1.8 \
-    && yes | poetry cache clear PyPI --all
-    COPY poetry.lock pyproject.toml ./
-    RUN poetry install
-    COPY prisma/schema.prisma /root/fastapi_server/prisma/schema.prisma
-    RUN poetry run prisma generate
+    COPY uv.lock pyproject.toml ./
+    RUN uv sync --frozen --no-cache --no-install-project
+    COPY prisma/* /root/fastapi_server/prisma/
+    RUN uv run --frozen prisma generate
     COPY src /root/fastapi_server/src
 
 format:
@@ -26,35 +24,35 @@ format:
     # poetry install
 
     # Convert single to double quotes
-    RUN poetry run ruff check . --select Q --fix
+    RUN uv run ruff check . --select Q --fix
     # Remove unused imports
-    RUN poetry run ruff check . --select F --fix
+    RUN uv run ruff check . --select F --fix
     # Sort imports
-    RUN poetry run ruff check . --select I --fix
+    RUN uv run ruff check . --select I --fix
     # Format code
-    RUN poetry run ruff format .
+    RUN uv run ruff format .
 
 # Check if files are correctly formatted
 format-check:
     FROM +install-dev
-    RUN poetry run ruff format . --check --diff
+    RUN uv run ruff format . --check --diff
 
 # Ignore errors via "# noqa: F841"
 lint:
     FROM +install-dev
-    RUN poetry run ruff check .
+    RUN uv run ruff check .
 
 # Ignore errors via "# pyre-fixme[11]"
 pyre:
     FROM +install-dev
     COPY .pyre_configuration /root/fastapi_server/.pyre_configuration
-    RUN poetry run pyre
+    RUN uv run pyre
 
 # Doesn't work anymore because it requires a separate postgres container now!
 # pytest:
 #     FROM +install-dev
 #     COPY test /root/fastapi_server/test
-#     RUN poetry run python -m pytest test
+#     RUN uv run python -m pytest test
 
 pre-commit:
     BUILD +format-check

@@ -12,16 +12,16 @@ from litestar.static_files import create_static_files_router
 from litestar.template.config import TemplateConfig
 from loguru import logger
 
-from src.routes.audiobook.book import MyAudiobookBookRoute
-from src.routes.audiobook.epub_upload import MyAudiobookEpubRoute
-from src.routes.audiobook.index import MyAudiobookIndexRoute
-from src.routes.hello_world import MyRootRoute
-from src.routes.login_logout import MyLoginRoute, MyLogoutRoute
-from src.routes.telegram_browser.telegram_browser import MyTelegramBrowserRoute
-from src.routes.temp_multiswap import MyMultiswapRoute
-from src.routes.text_to_speech import MyTTSRoute
-from src.routes.tts.websocket_handler import TTSQueue, TTSWebsocketHandler
-from src.workers.prevent_overflowing_audiobook_bucket import prevent_overflowing_audiobook_bucket
+from routes.audiobook.book import MyAudiobookBookRoute
+from routes.audiobook.epub_upload import MyAudiobookEpubRoute
+from routes.audiobook.index import MyAudiobookIndexRoute
+from routes.hello_world import MyRootRoute
+from routes.login_logout import MyLoginRoute, MyLogoutRoute
+from routes.telegram_browser.telegram_browser import MyTelegramBrowserRoute
+from routes.temp_multiswap import MyMultiswapRoute
+from routes.text_to_speech import MyTTSRoute
+from routes.tts.websocket_handler import TTSWebsocketHandler
+from workers.prevent_overflowing_audiobook_bucket import prevent_overflowing_audiobook_bucket
 
 load_dotenv()
 
@@ -38,7 +38,7 @@ async def startup_event():
     if STAGE == "test":
         return
     # Run websocket handler which handles tts
-    asyncio.create_task(TTSQueue.start_irc_bot())
+    # asyncio.create_task(TTSQueue.start_irc_bot())
     # Remove books and minio objects if minio bucket is overflowing
     asyncio.create_task(prevent_overflowing_audiobook_bucket())
     logger.info(f"Startup took {time.time() - t0:.2} seconds")

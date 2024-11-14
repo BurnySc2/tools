@@ -9,10 +9,10 @@ from minio import S3Error
 from minio.helpers import _BUCKET_NAME_REGEX
 
 from prisma import models
-from src.routes.audiobook.schema import (
+from routes.audiobook.schema import (
     minio_client,
 )
-from src.routes.caches import get_db
+from routes.caches import get_db
 
 # pyre-fixme[9]
 MINIO_AUDIOBOOK_BUCKET: str = os.getenv("MINIO_AUDIOBOOK_BUCKET")
@@ -44,6 +44,7 @@ async def delete_book_return_bytes(book: models.AudiobookBook) -> int:
     total_size_freed = 0
     chapter_objects_to_remove: list[str] = []
     chapter: models.AudiobookChapter
+    # pyre-fixme[16]
     for chapter in book.AudiobookChapter:
         if chapter.minio_object_name is None:
             continue

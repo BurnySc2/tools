@@ -20,7 +20,7 @@ from litestar.params import Body
 from litestar.response import Template
 from pydantic import BaseModel
 
-from src.routes.tts.generate_tts import Voices, generate_tts
+from routes.tts.generate_tts import Voices, generate_tts
 
 WS_BACKEND_SERVER_URL = os.getenv("BACKEND_WS_SERVER_URL", "ws:0.0.0.0:8000")
 

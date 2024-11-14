@@ -3,13 +3,22 @@
 
 <main class="flex h-screen flex-col items-center justify-center gap-4 bg-gray-300">
     {% if twitch_user == None and github_user == None and google_user == None %}
-    <a href="/login/twitch" class="rounded border-4 border-black p-2">
+    <a
+        href="/login/twitch"
+        class="rounded border-4 border-black p-2"
+    >
         Login with twitch
     </a>
-    <a href="/login/github" class="rounded border-4 border-black p-2">
+    <a
+        href="/login/github"
+        class="rounded border-4 border-black p-2"
+    >
         Login with github
     </a>
-    <a href="/login/google" class="rounded border-4 border-black p-2">
+    <a
+        href="/login/google"
+        class="rounded border-4 border-black p-2"
+    >
         Login with google
     </a>
     {% endif %}
@@ -18,7 +27,10 @@
     <div class="rounded border-4 border-black p-2">
         Logged in to twitch as user '{{ twitch_user.display_name }}'
     </div>
-    <a href="/logout" class="rounded border-4 border-black p-2">
+    <a
+        href="/logout"
+        class="rounded border-4 border-black p-2"
+    >
         Log out from twitch
     </a>
     {% endif %}
@@ -27,7 +39,10 @@
     <div class="rounded border-4 border-black p-2">
         Logged in to github as user '{{ github_user.login }}'
     </div>
-    <a href="/logout" class="rounded border-4 border-black p-2">
+    <a
+        href="/logout"
+        class="rounded border-4 border-black p-2"
+    >
         Log out from github
     </a>
     {% endif %}
@@ -36,7 +51,10 @@
     <div class="rounded border-4 border-black p-2">
         Logged in to google as user '{{ google_user.display_name }}'
     </div>
-    <a href="/logout" class="rounded border-4 border-black p-2">
+    <a
+        href="/logout"
+        class="rounded border-4 border-black p-2"
+    >
         Log out from google
     </a>
     {% endif %}

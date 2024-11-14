@@ -12,14 +12,14 @@ from litestar.enums import MediaType, RequestEncodingType
 from litestar.params import Body
 from litestar.response import Template
 
-from src.routes.audiobook.temp_read_epub import (
+from routes.audiobook.temp_read_epub import (
     EpubChapter,
     EpubMetadata,
     extract_chapters,
     extract_metadata,
 )
-from src.routes.caches import get_db
-from src.routes.cookies_and_guards import LoggedInUser, is_logged_in_guard, provide_logged_in_user
+from routes.caches import get_db
+from routes.cookies_and_guards import LoggedInUser, is_logged_in_guard, provide_logged_in_user
 
 load_dotenv()
 

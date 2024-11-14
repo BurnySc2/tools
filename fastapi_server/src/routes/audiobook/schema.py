@@ -10,7 +10,7 @@ from minio import Minio
 from pydantic import BaseModel
 
 from prisma import models
-from src.routes.caches import get_db
+from routes.caches import get_db
 
 load_dotenv()
 STAGE = os.getenv("STAGE", "local_dev")
@@ -75,8 +75,8 @@ async def get_chapter_position_in_queue(chapter: models.AudiobookChapter) -> int
         return -1
     async with get_db() as db:
         return await db.audiobookchapter.count(
-            # pyre-fixme[55]
             where={
+                # pyre-fixme[55]
                 "queued": {"lte": chapter.queued},
                 "started_converting": None,
                 "minio_object_name": None,

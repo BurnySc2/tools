@@ -4,8 +4,8 @@ from litestar import Controller, get
 from litestar.di import Provide
 from litestar.response import Template
 
-from src.routes.caches import get_db
-from src.routes.cookies_and_guards import (
+from routes.caches import get_db
+from routes.cookies_and_guards import (
     LoggedInUser,
     is_logged_in_guard,
     provide_logged_in_user,

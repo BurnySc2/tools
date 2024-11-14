@@ -12,11 +12,11 @@ from litestar.handlers.base import BaseRouteHandler
 from litestar.params import Parameter
 from pydantic import BaseModel
 
-from src.routes.audiobook.schema import (
+from routes.audiobook.schema import (
     AudioSettings,
 )
-from src.routes.audiobook.temp_generate_tts import get_supported_voices
-from src.routes.caches import get_db, global_cache
+from routes.audiobook.temp_generate_tts import get_supported_voices
+from routes.caches import get_db, global_cache
 
 load_dotenv()
 

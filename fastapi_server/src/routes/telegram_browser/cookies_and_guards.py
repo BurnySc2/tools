@@ -7,7 +7,7 @@ from litestar.connection import ASGIConnection
 from litestar.exceptions import NotAuthorizedException
 from litestar.handlers.base import BaseRouteHandler
 
-from src.routes.cookies_and_guards import COOKIES, provide_logged_in_user
+from routes.cookies_and_guards import COOKIES, provide_logged_in_user
 
 load_dotenv()
 

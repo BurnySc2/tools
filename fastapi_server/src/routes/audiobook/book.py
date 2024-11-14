@@ -18,7 +18,7 @@ from minio.helpers import _BUCKET_NAME_REGEX
 from stream_zip import ZIP_64, async_stream_zip
 
 from prisma import models
-from src.routes.audiobook.schema import (
+from routes.audiobook.schema import (
     AudioSettings,
     base64_encode_data,
     get_chapter_position_in_queue,
@@ -27,9 +27,9 @@ from src.routes.audiobook.schema import (
     normalize_filename,
     normalize_title,
 )
-from src.routes.audiobook.temp_generate_tts import get_supported_voices
-from src.routes.caches import get_db
-from src.routes.cookies_and_guards import (
+from routes.audiobook.temp_generate_tts import get_supported_voices
+from routes.caches import get_db
+from routes.cookies_and_guards import (
     LoggedInUser,
     get_user_settings,
     is_logged_in_guard,
@@ -63,7 +63,6 @@ class MyAudiobookBookRoute(Controller):
                     "id": book_id,
                     "uploaded_by": logged_in_user.db_name,
                 },
-                # pyre-fixme[55]
                 include={"AudiobookChapter": {"order_by": {"chapter_number": "asc"}}},
             )
             chapters_in_queue: list[dict] = await db.query_raw(
@@ -98,6 +97,7 @@ WHERE
                         "queued": chapter.queued,
                         "position_in_queue": chapter_id_to_queued_index.get(chapter.id, -1),
                     }
+                    # pyre-fixme[16]
                     for chapter in book.AudiobookChapter
                 ],
             },
@@ -128,6 +128,7 @@ WHERE
             if chapter.queued is None:
                 await db.audiobookchapter.update_many(
                     where={"id": chapter.id},
+                    # pyre-fixme[55]
                     data={
                         "audio_settings": data.model_dump_json(),
                         "queued": arrow.utcnow().datetime,
@@ -244,6 +245,7 @@ WHERE
                 for chapter in chapters:
                     batcher.audiobookchapter.update(
                         where={"id": chapter.id},
+                        # pyre-fixme[55]
                         data={
                             "audio_settings": data.model_dump_json(),
                             "queued": arrow.utcnow().datetime,
@@ -283,7 +285,6 @@ WHERE
         for _ in range(60):
             async with get_db() as db:
                 done_count: int = await db.audiobookchapter.count(
-                    # pyre-fixme[55]
                     where={
                         "book_id": book_id,
                         "minio_object_name": {
@@ -366,7 +367,6 @@ WHERE
                 minio_client.remove_object(bucket_name, minio_object_name)
 
         async with get_db() as db:
-            # pyre-fixme[55]
             chapters = await db.audiobookchapter.find_many(where={"minio_object_name": {"not": None}})
             chapter_objects_to_remove = [
                 chapter.minio_object_name for chapter in chapters if chapter.minio_object_name is not None
@@ -397,6 +397,7 @@ WHERE
                 minio_client.remove_object(MINIO_AUDIOBOOK_BUCKET, chapter.minio_object_name)
             await db.audiobookchapter.update_many(
                 where={"id": chapter.id},
+                # pyre-fixme[55]
                 data={
                     "queued": None,
                     "started_converting": None,

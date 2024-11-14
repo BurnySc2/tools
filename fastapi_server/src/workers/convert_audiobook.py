@@ -2,6 +2,7 @@
 TODO Keep service running, but spawn new workers if there are tasks to do, up to N workers
 Requires proper observing if workers completed (success/fail), only then spawn new ones
 """
+
 from __future__ import annotations
 
 import asyncio
@@ -18,11 +19,11 @@ from minio import Minio, S3Error
 from minio.helpers import _BUCKET_NAME_REGEX
 
 from prisma import Prisma
-from src.routes.audiobook.schema import (
+from routes.audiobook.schema import (
     AudioSettings,
     get_chapter_combined_text,
 )
-from src.routes.audiobook.temp_generate_tts import generate_text_to_speech
+from routes.audiobook.temp_generate_tts import generate_text_to_speech
 
 load_dotenv()
 

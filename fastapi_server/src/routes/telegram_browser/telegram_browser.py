@@ -23,8 +23,8 @@ from pydantic import BaseModel, PositiveInt
 
 from prisma import models
 from prisma.enums import Status
-from src.routes.caches import cache_coroutine_result, get_db
-from src.routes.telegram_browser.cookies_and_guards import is_logged_in_allowed_accounts_guard
+from routes.caches import cache_coroutine_result, get_db
+from routes.telegram_browser.cookies_and_guards import is_logged_in_allowed_accounts_guard
 
 minio_client = Minio(
     # pyre-fixme[6]
@@ -59,7 +59,6 @@ RESULT_COLUMNS = {
 async def all_channels_cache() -> list[models.TelegramChannel]:
     async with get_db() as db:
         all_channels_query = db.telegramchannel.find_many(
-            # pyre-fixme[55]
             where={"channel_username": {"not": None}},
             order={"channel_username": "asc"},
         )
@@ -227,6 +226,7 @@ class MyTelegramBrowserRoute(Controller):
         results_as_dict: list[dict] = [
             {
                 # Data displayed in the columns
+                # pyre-fixme[16]
                 "message_link": f"https://t.me/{row.channel.channel_username.lower()}/{row.message_id}",
                 "message_date": arrow.get(row.message_date).strftime("%Y-%m-%d %H:%M:%S"),
                 "message_text": row.message_text if row.message_text is not None else "",

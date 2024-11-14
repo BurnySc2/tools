@@ -15,12 +15,12 @@ remote_servers:
     contabo2:
 server_group1:
   hosts:
-    ssh1:
-    # prodesk:
+    # ssh1:
+    prodesk:
 server_group2:
   hosts:
-    # burnylaptopd:
-    ssh2:
+    burnylaptopd:
+    # ssh2:
 server_group3:
   hosts:
     contabo:

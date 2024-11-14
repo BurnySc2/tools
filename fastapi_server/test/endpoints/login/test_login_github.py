@@ -10,8 +10,8 @@ from litestar.stores.memory import MemoryStore
 from litestar.testing import TestClient
 from pytest_httpx import HTTPXMock
 
-from src.routes.caches import global_cache
-from src.routes.cookies_and_guards import (
+from routes.caches import global_cache
+from routes.cookies_and_guards import (
     COOKIES,
     GithubUser,
     provide_github_user,
