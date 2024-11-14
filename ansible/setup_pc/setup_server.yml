@@ -1,7 +1,7 @@
 # Execute with
 # ansible-playbook setup_server.yml -i ../hosts -i /home/burny/syncthing/secrets/ansible_secrets/.ansible_secrets
 - name: After a fresh manjaro installation, install or upgrade all software
-  hosts: server_group1, server_group2, server_group3, server_group4
+  hosts: my_servers
   tasks:
     - name: Install packages
       ansible.builtin.apt:

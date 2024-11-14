@@ -15,7 +15,8 @@ remote_servers:
     contabo2:
 server_group1:
   hosts:
-    prodesk:
+    ssh1:
+    # prodesk:
 server_group2:
   hosts:
     # burnylaptopd:

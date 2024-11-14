@@ -9,6 +9,21 @@
   register: dns_record_response
   delegate_to: 127.0.0.1
 
+- name: Update A-Record as it does not match target
+  ansible.builtin.uri:
+    url: "https://api.cloudflare.com/client/v4/zones/{{ secrets.CLOUDFLARE.DNS_ZONE_ID }}/dns_records/{{ dns_record_response.json.result[0].id }}"
+    method: PATCH
+    headers:
+      Content-Type: application/json
+      Authorization: "Bearer {{ secrets.CLOUDFLARE.DNS_API_TOKEN }}"
+    body_format: json
+    body:
+      content: "{{ IPv4 }}"
+    status_code: 200
+  changed_when: dns_record_response.json.result_info.count == 1 and dns_record_response.json.result[0].content != "{{ IPv4 }}"
+  when: dns_record_response.json.result_info.count == 1 and dns_record_response.json.result[0].content != "{{ IPv4 }}"
+  delegate_to: 127.0.0.1
+
 - name: Create "A-record" for {{ item.hostname }}
   ansible.builtin.uri:
     url: "https://api.cloudflare.com/client/v4/zones/{{ secrets.CLOUDFLARE.DNS_ZONE_ID }}/dns_records"

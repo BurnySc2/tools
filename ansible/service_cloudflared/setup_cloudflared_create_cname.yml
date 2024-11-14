@@ -9,6 +9,8 @@
   register: dns_record_response
   delegate_to: 127.0.0.1
 
+# TODO If tunnel does not match, update with `PATCH` request
+
 - name: "Create 'CNAME-record' for tunnel for {{ item.hostname }}"
   ansible.builtin.uri:
     url: "https://api.cloudflare.com/client/v4/zones/{{ secrets.CLOUDFLARE.DNS_ZONE_ID }}/dns_records"
