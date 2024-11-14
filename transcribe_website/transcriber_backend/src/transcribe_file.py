@@ -80,10 +80,11 @@ def transcribe_file(
     return result2
 
 
-def already_in_db(input_file_path: Path) -> bool:
+def get_all_paths_already_in_db() -> set[str]:
     with Prisma() as db:
-        result = db.word.find_first(where={"file_felative_path": input_file_path.as_posix()})
-    return result is not None
+        result = db.word.find_many(distinct=["file_felative_path"])
+
+    return {w.file_felative_path for w in result}
 
 
 def save_result_to_db(
@@ -134,8 +135,9 @@ def mass_transcribe(
     model_size: model_sizes,
     language: language_codes | None = None,
 ) -> None:
+    already_in_db = get_all_paths_already_in_db()
     for file_path in recurse_path(input_folder_path, depth=1):
-        if already_in_db(file_path):
+        if file_path.as_posix() in already_in_db:
             continue
         logger.info(f"Started transcribing: {file_path.as_posix()}")
         result = transcribe_file(file_path, model_size=model_size, language=language)
