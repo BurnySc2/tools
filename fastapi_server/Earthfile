@@ -16,6 +16,7 @@ format:
     LOCALLY
     # Requirements:
     # pip install uv
+    # uv sync
 
     # Convert single to double quotes
     RUN uv run ruff check . --select Q --fix

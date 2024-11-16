@@ -1,51 +1,49 @@
 VERSION 0.6
 # earthly +all --PYTHONVERSION=3.12
 ARG PYTHONVERSION=3.12
-FROM python:${PYTHONVERSION}-slim
+FROM ghcr.io/astral-sh/uv:python${PYTHONVERSION}-bookworm-slim
 WORKDIR /root/stream_announcer
 
 install-dev:
-    RUN apt -y update
-    RUN pip install poetry --no-cache-dir
-    COPY poetry.lock pyproject.toml ./
-    RUN poetry install
-    COPY src /root/stream_announcer/src
+    COPY uv.lock pyproject.toml ./
+    RUN uv sync --frozen --no-cache --no-install-project
+    COPY src /root/fastapi_server/src
 
 format:
     # Run on host system instead of inside a container
     LOCALLY
     # Requirements:
-    # pip install poetry
-    # poetry install
-
+    # pip install uv
+    # uv sync
+    
     # Convert single to double quotes
-    RUN poetry run ruff check . --select Q --fix
+    RUN uv run ruff check . --select Q --fix
     # Remove unused imports
-    RUN poetry run ruff check . --select F --fix
+    RUN uv run ruff check . --select F --fix
     # Sort imports
-    RUN poetry run ruff check . --select I --fix
+    RUN uv run ruff check . --select I --fix
     # Format code
-    RUN poetry run yapf -ir .
+    RUN uv run ruff format .
 
 # Check if files are correctly formatted
 format-check:
     FROM +install-dev
-    RUN poetry run yapf -dr .
+    RUN uv run ruff format . --check --diff
 
 # Ignore errors via "# noqa: F841"
 lint:
     FROM +install-dev
-    RUN poetry run ruff check .
+    RUN uv run ruff check .
 
 # Ignore errors via "# pyre-fixme[11]"
 pyre:
     FROM +install-dev
     COPY .pyre_configuration /root/stream_announcer/.pyre_configuration
-    RUN poetry run pyre
+    RUN uv run pyre
 
 # pytest:
 #     FROM +install-dev
-#     RUN poetry run pytest test
+#     RUN uv run pytest test
 
 pre-commit:
     BUILD +format-check

@@ -50,7 +50,10 @@ async def check_twitch(chunked_data: list[dict[str, OrderedDict]]):
     )
     session = aiohttp.ClientSession()
     all_previously_online_streams: list[str] = [
-        db_entry["twitch_name"] for chunk in chunked_data for db_entries in chunk.values() for db_entry in db_entries
+        db_entry["twitch_name"]
+        for chunk in chunked_data
+        for db_entries in chunk.values()
+        for db_entry in db_entries
         if db_entry.get("status") == "online"
     ]
     all_online_streams: list[str] = []
