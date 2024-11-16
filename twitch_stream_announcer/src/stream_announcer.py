@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 from loguru import logger
 from twitchAPI.twitch import Stream, Twitch
 
-from src.model import get_streams_to_announce, set_stream_online, set_streams_offline
+from model import get_streams_to_announce, set_stream_online, set_streams_offline
 
 load_dotenv()
 

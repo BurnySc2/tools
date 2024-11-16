@@ -1,16 +1,12 @@
-FROM python:3.12-alpine
+FROM ghcr.io/astral-sh/uv:python3.12-alpine
 
-RUN pip install --no-cache-dir poetry==1.8 \
-    && yes | poetry cache clear PyPI --all
+COPY uv.lock pyproject.toml /root/stream_announcer/
 
 WORKDIR /root/stream_announcer
-
-COPY poetry.lock pyproject.toml ./
-
-RUN poetry install --without dev
+RUN uv sync --no-dev --frozen --no-cache --no-install-project
 
 COPY src /root/stream_announcer/src
 
-ENV PYTHONPATH=$PYTHONPATH:/root/stream_announcer
+ENV PYTHONPATH=$PYTHONPATH:/root/stream_announcer/src
 
-CMD ["poetry", "run", "python", "src/stream_announcer.py"]
+CMD ["uv", "run", "--no-dev", "python", "src/stream_announcer.py"]
