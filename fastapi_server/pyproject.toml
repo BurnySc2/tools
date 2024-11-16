@@ -70,6 +70,8 @@ allow_split_before_dict_value = false
 [tool.ruff]
 target-version = 'py310'
 line-length = 120
+
+[tool.ruff.lint]
 # Allow unused variables when underscore-prefixed.
 dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 select = [
@@ -88,10 +90,9 @@ select = [
     "UP",  # pyupgrade
     #    "A",  # flake8-builtins
 ]
-
-[tool.ruff.pep8-naming]
 # Allow Pydantic's `@validator` decorator to trigger class method treatment.
-classmethod-decorators = ["pydantic.validator", "classmethod"]
+pep8-naming.classmethod-decorators = ["pydantic.validator", "classmethod"]
+
 
 [tool.pytest.ini_options]
 pythonpath = "src"

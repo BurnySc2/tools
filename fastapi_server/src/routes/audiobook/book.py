@@ -394,7 +394,7 @@ WHERE
                 where={"book_id": book_id, "chapter_number": chapter_number}
             )
             if chapter.minio_object_name is not None:
-                minio_client.remove_object(MINIO_AUDIOBOOK_BUCKET, chapter.minio_object_name)
+                await asyncio.to_thread(minio_client.remove_object, MINIO_AUDIOBOOK_BUCKET, chapter.minio_object_name)
             await db.audiobookchapter.update_many(
                 where={"id": chapter.id},
                 # pyre-fixme[55]

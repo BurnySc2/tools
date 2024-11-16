@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import json
 import os
 import re
@@ -13,8 +14,12 @@ from litestar.contrib.htmx.request import HTMXRequest
 from litestar.contrib.htmx.response import ClientRedirect, HTMXTemplate
 from litestar.datastructures import Cookie
 from litestar.enums import RequestEncodingType
+from litestar.exceptions import HTTPException
 from litestar.params import Body, Parameter
 from litestar.response import Template
+from litestar.status_codes import (
+    HTTP_204_NO_CONTENT,
+)
 from litestar.stores.memory import MemoryStore
 from loguru import logger
 from minio import Minio
@@ -267,15 +272,51 @@ class MyTelegramBrowserRoute(Controller):
     async def queue_download_file(
         self,
         message_id: int,
-    ) -> None:
+    ) -> Template:
         """In database, set file to queued"""
         async with get_db() as db:
-            await db.telegrammessage.update(
+            item = await db.telegrammessage.update(
                 data={
                     "status": Status.Queued,
                 },
                 where={"id": message_id},
             )
+        return Template(
+            "telegram_browser/search_result_icons.html",
+            context={
+                "row": {
+                    "metadata": {
+                        "id": item.id,
+                        "status": item.status,
+                    }
+                }
+            },
+        )
+
+    @get("/poll-file/{message_id: int}")
+    async def poll_download_file(
+        self,
+        message_id: int,
+    ) -> Template | Response:
+        """Check if file has been downloaded"""
+        async with get_db() as db:
+            item = await db.telegrammessage.find_unique(
+                where={"id": message_id},
+            )
+            if item.status in {Status.Downloading, Status.Queued}:
+                # No content, do not swap
+                return Response(content="", status_code=HTTP_204_NO_CONTENT)
+        return Template(
+            "telegram_browser/search_result_icons.html",
+            context={
+                "row": {
+                    "metadata": {
+                        "id": item.id,
+                        "status": item.status,
+                    }
+                }
+            },
+        )
 
     @get("/view-file/{message_id: int}")
     async def view_file(
@@ -291,15 +332,17 @@ class MyTelegramBrowserRoute(Controller):
             message = await db.telegrammessage.find_unique(
                 where={"id": message_id},
             )
-        if message is None or message.minio_object_name is None:
-            return
-        minio_url = minio_client.presigned_get_object(
+        if message is None:
+            raise HTTPException(detail="Message not found", status_code=400)
+        if message.minio_object_name is None:
+            raise HTTPException(detail="File has not been downloaded.", status_code=400)
+        minio_url = await asyncio.to_thread(
+            minio_client.presigned_get_object,
             BUCKET_NAME,
             message.minio_object_name,
-            expires=timedelta(seconds=(message.file_duration_seconds or 0) + 300),
+            expires=timedelta(seconds=(message.file_duration_seconds or 0) + 5 * 60),
         )
-        # TODO Wrap in async?
-        return HTMXTemplate(
+        return Template(
             template_name="telegram_browser/view_media_dialog.html",
             context={
                 "mime_type": message.mime_type,
@@ -317,9 +360,8 @@ class MyTelegramBrowserRoute(Controller):
             message = await db.telegrammessage.find_unique(where={"id": message_id})
             if message is None or message.minio_object_name is None:
                 return
-        # TODO Wrap in async?
-        minio_url = minio_client.presigned_get_object(
-            BUCKET_NAME, message.minio_object_name, expires=timedelta(hours=1)
+        minio_url = await asyncio.to_thread(
+            minio_client.presigned_get_object, BUCKET_NAME, message.minio_object_name, expires=timedelta(hours=1)
         )
         return ClientRedirect(redirect_to=minio_url)
 
@@ -333,9 +375,8 @@ class MyTelegramBrowserRoute(Controller):
             message = await db.telegrammessage.find_unique(where={"id": message_id})
             assert message is not None
             if message.minio_object_name is not None:
-                # TODO Wrap in async?
-                minio_client.remove_object(BUCKET_NAME, message.minio_object_name)
-            await db.telegrammessage.update_many(
+                asyncio.to_thread(minio_client.remove_object, BUCKET_NAME, message.minio_object_name)
+            item = await db.telegrammessage.update(
                 data={
                     "status": Status.HasFile,
                     "downloading_retry_attempt": 0,
@@ -343,8 +384,19 @@ class MyTelegramBrowserRoute(Controller):
                     "minio_object_name": None,
                 },
                 # pyre-fixme[55]
-                where={"id": message_id, "status": {"not": Status.NoFile}},
+                where={"id": message_id},
             )
+        return Template(
+            "telegram_browser/search_result_icons.html",
+            context={
+                "row": {
+                    "metadata": {
+                        "id": item.id,
+                        "status": item.status,
+                    }
+                }
+            },
+        )
 
     @post("/save-active-columns")
     async def save_active_columns(
