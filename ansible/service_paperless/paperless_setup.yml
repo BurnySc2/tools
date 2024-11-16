@@ -2,12 +2,18 @@
 # Execute with
 # ansible-playbook paperless_setup.yml -i ../hosts -i /home/burny/syncthing/secrets/ansible_secrets/.ansible_secrets
 - name: Create service
-  hosts: my_servers
+  hosts: server_group4
   vars:
     USERNAME: "{{ secrets.PAPERLESS.USERNAME }}"
-    SUBDOMAIN: "{{ secrets.PAPERLESS.SUBDOMAIN }}"
     APPLICATION_PORT: "8000"
   tasks:
+    - include_tasks: ../setup_cloudflare_a_record.yml
+      loop:
+        - hostname: "{{ USERNAME }}.{{ secrets.MY_DOMAIN }}"
+      loop_control:
+        loop_var: item
+      when: "'remote_servers' in group_names"
+
     - name: Create group
       ansible.builtin.group:
         name: "{{ USERNAME }}"
@@ -25,12 +31,12 @@
       template:
         src: docker-compose.env
         dest: /home/{{ USERNAME }}/docker-compose.env
-        
+
     - name: Copy docker-compose.yml file
       template:
         src: docker-compose.yml
         dest: /home/{{ USERNAME }}/docker-compose.yml
-        
+
     - name: Run `docker-compose up` again
       community.docker.docker_compose_v2:
         project_src: /home/{{ USERNAME }}

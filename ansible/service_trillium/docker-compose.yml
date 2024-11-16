@@ -1,0 +1,20 @@
+networks:
+  '{{secrets.TRAEFIK_NETWORK}}':
+    external: true
+
+services:
+  trillium:
+    container_name: trillium
+    image: zadam/trilium
+    restart: unless-stopped
+    networks:
+    - '{{ secrets.TRAEFIK_NETWORK }}'
+    volumes:
+    - ./data:/home/node/trilium-data
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.{{ USERNAME }}.rule=Host(`{{ USERNAME }}.{{ secrets.MY_DOMAIN }}`)
+      - traefik.http.services.{{ USERNAME }}.loadbalancer.server.port=8080
+      - traefik.http.routers.{{ USERNAME }}.tls=true
+      - traefik.http.routers.{{ USERNAME }}.tls.certresolver=production
+      - traefik.http.routers.{{ USERNAME }}.middlewares=authelia@docker

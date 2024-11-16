@@ -1,5 +1,5 @@
 VERSION 0.6
-# earthly +all --PYTHONVERSION=3.11
+# earthly +all --PYTHONVERSION=3.12
 ARG PYTHONVERSION=3.12
 FROM ghcr.io/astral-sh/uv:python${PYTHONVERSION}-bookworm-slim
 WORKDIR /root/fastapi_server
@@ -20,8 +20,7 @@ format:
     # Run on host system instead of inside a container
     LOCALLY
     # Requirements:
-    # pip install poetry
-    # poetry install
+    # pip install uv
 
     # Convert single to double quotes
     RUN uv run ruff check . --select Q --fix

@@ -131,6 +131,24 @@
                   originServerName: lissen.burnysc2.xyz
                   noTLSVerify: true
                   http2Origin: true
+              - hostname: vodching.burnysc2.xyz
+                service: https://traefik
+                originRequest:
+                  originServerName: vodching.burnysc2.xyz
+                  noTLSVerify: true
+                  http2Origin: true
+              - hostname: baikal.burnysc2.xyz
+                service: https://traefik
+                originRequest:
+                  originServerName: baikal.burnysc2.xyz
+                  noTLSVerify: true
+                  http2Origin: true
+              - hostname: notes.burnysc2.xyz
+                service: https://traefik
+                originRequest:
+                  originServerName: notes.burnysc2.xyz
+                  noTLSVerify: true
+                  http2Origin: true
               - service: http_status:404
         status_code: 200
       when: "'server_group2' in group_names"
@@ -145,6 +163,9 @@
         - hostname: www.burnysc2.xyz
         - hostname: apidev.burnysc2.xyz
         - hostname: lissen.burnysc2.xyz
+        - hostname: vodching.burnysc2.xyz
+        - hostname: baikal.burnysc2.xyz
+        - hostname: notes.burnysc2.xyz
       loop_control:
         loop_var: item
       when: "'server_group2' in group_names"

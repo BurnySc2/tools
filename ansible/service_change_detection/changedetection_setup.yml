@@ -2,12 +2,19 @@
 # Execute with
 # ansible-playbook changedetection_setup.yml -i ../hosts -i /home/burny/syncthing/secrets/ansible_secrets/.ansible_secrets
 - name: Create service
-  hosts: my_servers
+  hosts: server_group4
   vars:
     USERNAME: "{{ secrets.CHANGE_DETECTION.USERNAME }}"
     SUBDOMAIN: "{{ secrets.CHANGE_DETECTION.SUBDOMAIN }}"
     APPLICATION_PORT: "5000"
   tasks:
+    - include_tasks: ../setup_cloudflare_a_record.yml
+      loop:
+        - hostname: "{{ SUBDOMAIN }}.{{ secrets.MY_DOMAIN }}"
+      loop_control:
+        loop_var: item
+      when: "'remote_servers' in group_names"
+
     - name: Create group
       ansible.builtin.group:
         name: "{{ USERNAME }}"
@@ -25,7 +32,7 @@
       template:
         src: docker-compose.yml
         dest: /home/{{ USERNAME }}/docker-compose.yml
-        
+
     - name: Run `docker-compose up` again
       community.docker.docker_compose_v2:
         project_src: /home/{{ USERNAME }}

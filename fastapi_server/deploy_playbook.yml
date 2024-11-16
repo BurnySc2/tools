@@ -45,6 +45,7 @@
           - "--exclude=.pyre"
           - "--exclude=.pytest_cache"
           - "--exclude=.ruff_cache"
+          - "--exclude=.venv"
           - "--exclude=.vscode"
           - "--exclude=test"
 

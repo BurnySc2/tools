@@ -1,7 +1,7 @@
 # Execute with
 # ansible-playbook baikal_setup.yml -i ../hosts -i /home/burny/syncthing/secrets/ansible_secrets/.ansible_secrets
 - name: Create service
-  hosts: my_servers
+  hosts: server_group2
   vars:
     USERNAME: "{{ secrets.BAIKAL.USERNAME }}"
     SUBDOMAIN: "{{ secrets.BAIKAL.SUBDOMAIN }}"
@@ -24,7 +24,7 @@
       template:
         src: docker-compose.yml
         dest: /home/{{ USERNAME }}/docker-compose.yml
-        
+
     - name: Run `docker-compose up` again
       community.docker.docker_compose_v2:
         project_src: /home/{{ USERNAME }}

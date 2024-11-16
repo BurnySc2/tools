@@ -8,7 +8,9 @@ my_servers:
 local_servers:
   hosts:
     prodesk:
-    ssh2:
+    burnylaptopd:
+    # ssh1:
+    # ssh2:
 remote_servers:
   hosts:
     contabo:
