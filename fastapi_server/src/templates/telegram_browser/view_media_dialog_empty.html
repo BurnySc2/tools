@@ -1,6 +1,8 @@
-<dialog id="view-media-dialog"
+<dialog
+    id="view-media-dialog"
     class="h-full w-full rounded-xl bg-neutral-800 ring-4 backdrop:bg-white/30 backdrop:backdrop-blur-sm backdrop:backdrop-brightness-50"
-    show></dialog>
+    show
+></dialog>
 <script>
     document.addEventListener('htmx:afterRequest', (event) => {
         if (event.target.classList.contains("open-view-media-dialog") && event.detail.successful) {

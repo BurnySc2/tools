@@ -1,7 +1,16 @@
-<dialog id="columns-reorder-dialog"
-    class="rounded-xl p-8 ring-8 backdrop:bg-white/30 backdrop:backdrop-blur-sm backdrop:backdrop-brightness-50" show>
-    <form id="save-active-columns-form" class="flex flex-col gap-4" method="dialog"
-        hx-post="/telegram-browser/save-active-columns" hx-include="#active-columns" hx-swap="none">
+<dialog
+    id="columns-reorder-dialog"
+    class="rounded-xl p-8 ring-8 backdrop:bg-white/30 backdrop:backdrop-blur-sm backdrop:backdrop-brightness-50"
+    show
+>
+    <form
+        id="save-active-columns-form"
+        class="flex flex-col gap-4"
+        method="dialog"
+        hx-post="/telegram-browser/save-active-columns"
+        hx-include="#active-columns"
+        hx-swap="none"
+    >
 
         <table class="h-1"> {# Fixes cell height for some reason #}
             <tr>
@@ -16,21 +25,31 @@
             <tr>
                 {# Active columns with order, filled from cookie #}
                 <td>
-                    <div id="active-columns"
-                        class="droppable-container mx-2 flex h-full flex-col gap-2 border border-black p-2">
+                    <div
+                        id="active-columns"
+                        class="droppable-container mx-2 flex h-full flex-col gap-2 border border-black p-2"
+                    >
                         {% for col_key, col_name in active_columns.items() %}
-                        <div id="{{ col_key }}" class="draggable-item whitespace-nowrap rounded-xl hover:bg-yellow-300"
-                            draggable="true">{{
+                        <div
+                            id="{{ col_key }}"
+                            class="draggable-item whitespace-nowrap rounded-xl hover:bg-yellow-300"
+                            draggable="true"
+                        >{{
                             col_name }}</div>
                         {% endfor %}
                     </div>
                 </td>
                 <td>
-                    <div id="disabled-columns"
-                        class="droppable-container mx-2 flex h-full flex-col gap-2 border border-black p-2">
+                    <div
+                        id="disabled-columns"
+                        class="droppable-container mx-2 flex h-full flex-col gap-2 border border-black p-2"
+                    >
                         {% for col_key, col_name in disabled_columns.items() %}
-                        <div id="{{ col_key }}" class="draggable-item whitespace-nowrap rounded-xl hover:bg-yellow-300"
-                            draggable="true">{{
+                        <div
+                            id="{{ col_key }}"
+                            class="draggable-item whitespace-nowrap rounded-xl hover:bg-yellow-300"
+                            draggable="true"
+                        >{{
                             col_name }}</div>
                         {% endfor %}
                     </div>
@@ -39,9 +58,15 @@
         </table>
 
         <div class="flex gap-4">
-            <button type="submit" class="grow rounded-xl bg-green-400 p-2 hover:bg-green-500">Save changes</button>
-            <button type="button" class="grow rounded-xl bg-red-400 p-2 hover:bg-red-500"
-                onclick="document.getElementById('columns-reorder-dialog').close();">Cancel</button>
+            <button
+                type="submit"
+                class="grow rounded-xl bg-green-400 p-2 hover:bg-green-500"
+            >Save changes</button>
+            <button
+                type="button"
+                class="grow rounded-xl bg-red-400 p-2 hover:bg-red-500"
+                onclick="document.getElementById('columns-reorder-dialog').close();"
+            >Cancel</button>
         </div>
     </form>
 </dialog>
