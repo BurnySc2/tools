@@ -50,6 +50,9 @@ def get_timestamps_from_file(my_file: Path) -> list[tuple[float, float]]:
         if "-" not in line:
             continue
         start, end = line.strip().split("-")
+        if start == end:
+            timestamps.append((0, 0))
+            continue
         # Extract if time in frames are given
         timestamps.append(
             (
@@ -78,6 +81,10 @@ def convert_clip(
     clip_index: int,
     word_count: int,
 ) -> None:
+    clip_out_path = out_folder_path / f"{clip_index:04d}.mp4"
+    if clip_out_path.is_file():
+        return
+
     # Add context, half transition duration
     timestamp_start = timestamp_start - CLIP_CONTEXT
     timestamp_end = timestamp_end + CLIP_CONTEXT
@@ -93,18 +100,18 @@ def convert_clip(
     text = text.set_duration(clip.duration)
 
     clip = CompositeVideoClip([clip, text])
-    clip_out_path = out_folder_path / f"{clip_index:04d}.mp4"
 
     # Write result
     # https://moviepy.readthedocs.io/en/latest/ref/videotools.html?highlight=write_videofile#moviepy.video.tools.credits.CreditsClip.write_videofile
     print(video_path.name, timestamp_start, timestamp_end)
     clip.write_videofile(
-        str(clip_out_path.absolute()),
+        clip_out_path.as_posix(),
         codec="libx264",
         preset="medium",
         ffmpeg_params=["-crf", "20", "-c:a", "copy"],
     )
     # Force release memory
+    text.close()
     clip.close()
     gc.collect()
 
@@ -118,9 +125,9 @@ with ThreadPoolExecutor(max_workers=4) as executor:
         timestamps_file_path = video_folder_path / timestamp_file_name
         if not timestamps_file_path.is_file():
             continue
-        # TODO Only convert if target file does not exist?!
+
         timestamps = get_timestamps_from_file(timestamps_file_path)
-        for index, (video_path, (timestamp_start, timestamp_end)) in enumerate(zip(video_file_paths, timestamps)):
+        for video_path, (timestamp_start, timestamp_end) in zip(video_file_paths, timestamps):
             clip_number += 1
             if timestamp_start == timestamp_end:
                 continue
