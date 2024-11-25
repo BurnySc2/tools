@@ -10,9 +10,9 @@ TODO Then finaally all cut videos are merged together with ffmpeg
 
 import gc
 import os
+from collections.abc import Iterable
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from typing import Iterable
 
 from dotenv import load_dotenv
 from moviepy.editor import CompositeVideoClip, TextClip, VideoFileClip  # pyre-fixme[21]
@@ -22,7 +22,7 @@ load_dotenv()
 
 # The folders containing the video files
 # pyre-fixme[16]
-videos_folder_path = [Path(p) for p in os.getenv("VIDEO_FOLDER_PATHS").split(":")]
+videos_folder_path = [Path(p) for p in os.getenv("VIDEO_FOLDER_PATHS").split(";")]
 # Where to store the cut files to
 # pyre-fixme[6]
 out_folder_path = Path(os.getenv("VIDEO_OUT_PATHS"))
@@ -42,7 +42,7 @@ out_folder_path.mkdir(parents=True, exist_ok=True)
 
 def get_timestamps_from_file(my_file: Path) -> list[tuple[float, float]]:
     # Example entry:
-    # 1.56-2.31
+    # 51-185
     timestamps: list[tuple[float, float]] = []
     for line in my_file.read_text().split("\n"):
         if line.startswith("#"):
@@ -50,24 +50,12 @@ def get_timestamps_from_file(my_file: Path) -> list[tuple[float, float]]:
         if "-" not in line:
             continue
         start, end = line.strip().split("-")
-        # 01-04, 06
-        # start_sec, start_ms = start.split(".")
-        # end_sec, end_ms = end.split(".")
-        # timestamps.append(
-        #     (
-        #         # Divide through 60 if timestamp is in seconds instead of frames
-        #         float(start_sec) + float(start_ms) / 60,
-        #         float(end_sec) + float(end_ms) / 60,
-        #     ),
-        # )
-
-        # 07 and onward
         # Extract if time in frames are given
         timestamps.append(
             (
                 # Start and end is listed in frames but we need seconds
                 float(start) / 60,
-                float(end) / 60,
+                float(end) / 60 + 1 / 60,
             ),
         )
 
@@ -113,8 +101,7 @@ def convert_clip(
     clip.write_videofile(
         str(clip_out_path.absolute()),
         codec="libx264",
-        # codec="libx265",
-        preset="faster",
+        preset="medium",
         ffmpeg_params=["-crf", "20", "-c:a", "copy"],
     )
     # Force release memory

@@ -30,6 +30,7 @@ assert os.getenv("STAGE", "dev") in {"local_dev", "dev", "prod", "test"}, os.get
 STAGE: Literal["local_dev", "dev", "prod", "test"] = os.getenv("STAGE")  # pyre-fixme[9]
 BACKEND_SERVER_URL = os.getenv("BACKEND_SERVER_URL", "http://localhost:8000")
 WS_BACKEND_SERVER_URL = os.getenv("BACKEND_WS_SERVER_URL", "ws:localhost:8000")
+logger.info(f"Server url: {BACKEND_SERVER_URL}")
 t0 = time.time()
 
 

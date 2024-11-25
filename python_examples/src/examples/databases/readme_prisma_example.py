@@ -12,7 +12,6 @@ Assume database is empty. Insert only works when constraints are met.
 # Update types (will be updated in .venv site-packages folder)
 # poetry run prisma generate --watch --schema examples/databases/prisma/schema.prisma
 
-
 import asyncio
 
 from prisma import Prisma  # pyre-fixme[21]

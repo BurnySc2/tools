@@ -13,6 +13,7 @@ https://pgexercises.com
 https://www.sql-practice.com
 https://mystery.knightlab.com
 """
+
 import math
 import sqlite3
 

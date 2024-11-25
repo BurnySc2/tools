@@ -2,9 +2,11 @@ my_servers:
   hosts:
     # Same as '~/.ssh/config' entry
     prodesk:
-    ssh2:
+    burnylaptopd:
     contabo:
     contabo2:
+    # ssh1:
+    # ssh2:
 local_servers:
   hosts:
     prodesk:

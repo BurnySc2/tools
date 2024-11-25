@@ -25,3 +25,9 @@ services:
       - traefik.http.routers.{{ USERNAME }}.tls=true
       - traefik.http.routers.{{ USERNAME }}.tls.certresolver=production
       - traefik.http.routers.{{ USERNAME }}.middlewares=authelia@docker
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "1"
+          memory: 2048M

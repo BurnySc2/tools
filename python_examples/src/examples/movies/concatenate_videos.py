@@ -53,14 +53,11 @@ def main():
         f"{filelist_path.as_posix()}",
         "-c:v",
         "libx264",
-        "-crf",
-        "20",
-        "-acodec",
-        "aac",
+        "-c:a",
+        "copy",
         f"{OUTPUT_FILE.as_posix()}",
     ]
-    process = subprocess.Popen(command)
-    process.communicate()
+    subprocess.check_call(command)
 
 
 if __name__ == "__main__":

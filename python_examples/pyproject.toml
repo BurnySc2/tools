@@ -1,108 +1,61 @@
-[tool.poetry]
-name = "python_examples"
+[project]
+name = "src"
 version = "0.1.0"
-description = ""
-authors = ["BuRny <gamingburny@gmail.com>"]
-#package-mode = false
+requires-python = ">=3.10, <3.14"
+dependencies = [
+    "aiocontextvars>=0.2.2",
+    "aiofile>=3.9.0",
+    "aiohttp>=3.11.7",
+    "alembic>=1.14.0",
+    "beanie>=1.27.0",
+    "bokeh>=3.6.1",
+    "burny-common>=0.0.13",
+    "click>=8.1.7",
+    "dataclasses-json>=0.6.7",
+    "dataset>=1.6.2",
+    "dpath>=2.2.0",
+    "idna-ssl>=1.1.0",
+    "loguru>=0.7.2",
+    "lorem-text>=2.1",
+    "matplotlib>=3.9.2",
+    "mongoengine>=0.29.1",
+    "moviepy<2.0.0",
+    "numpy>=2.1.3",
+    "pandas>=2.2.3",
+    "paramiko>=2.12.0",
+    "peewee>=3.17.8",
+    "pendulum>=3.0.0",
+    "pillow>=10.4.0",
+    "pony>=0.7.19",
+    "prisma>=0.15.0",
+    "psutil>=5.9.8",
+    "psycopg[binary]>=3.2.3",
+    "pydantic[email]>=1.10.19",
+    "pymongo>=4.10.1",
+    "python-dotenv>=1.0.1",
+    "requests>=2.32.3",
+    "seaborn>=0.13.2",
+    "shapely>=2.0.6",
+    "sqlalchemy>=1.4.54",
+    "sqlmodel>=0.0.11",
+    "tinydb>=4.8.2",
+    "watchgod>=0.8.2",
+]
 
-[tool.poetry.dependencies]
-python = ">=3.11, <3.13"
-# Numeric python
-numpy = "^2"
-# Write and read classes to/from json
-dataclasses-json = "^0.5"
-# Write and read classes to/from json with validator
-pydantic = {extras = ["email"], version = "^1"}
-# Network access
-aiohttp = "^3.7"
-requests = "^2.26"
-# Required by aiohttp on windows?
-idna-ssl = "^1.1"
-# Simple logger
-loguru = "^0.7"
-# Required by loguru on windows?
-aiocontextvars = "^0.2"
-atomicwrites = "^1.3"
-contextvars = "^2.4"
-win32-setctime = "^1.0"
-# Image library
-pillow = "^10"
-# Better / easier datetime library
-pendulum = "^3"
-# Easier nested dictionary manipulation
-dpath = "^2.0"
-# File watcher
-watchgod = "^0.8"
-# Database with ORM
-SQLAlchemy = "^1"
-# Simple database that operates on dictionaries
-tinydb = "^4.5"
-# New popular database mongodb
-pymongo = "^3.12"
-# Generate text
-lorem-text = "^2.1"
-# https://github.com/tiangolo/sqlmodel
-sqlmodel = "^0"
-# Geometry manipulation
-Shapely = "^2"
-# Info about the system
-psutil = "^5.8"
-# Execute command on server via SSH, or push files via SFTP
-paramiko = "^2.11"
-# Simpler argparse
-click = "^8.1"
-# SQL ORM
-peewee = "^3.14"
-# SQL ORM
-pony = "^0.7.16"
-# Sync mongoDB ODM
-mongoengine = "^0.24"
-# Async mongoDB ODM
-beanie = "^1.11"
-# Create sqlalchemy migrations
-alembic = "^1.7"
-# Load environment variables from .env file
-python-dotenv = "^1.0"
-# Data science and plotting
-pandas = "^2"
-# Plotting
-seaborn = "^0.13.0"
-# Plotting
-matplotlib = "^3.5.2"
-# Plotting
-bokeh = "^3.0"
-# Animation
-#manim = "^0.15.2"
-aiofiles = "^23.0"
-burny-common = "^0.0.12"
-psycopg = {extras = ["binary"], version = "^3.1.17"}
-dataset = "^1.6.2"
-moviepy = "^1.0.3"
-prisma = "^0.13.1"
-
-[tool.poetry.group.dev.dependencies]
-# Test library
-pytest = "^7.1"
-pytest-asyncio = "^0.18"
-pytest-cov = "^4.0"
-pytest-benchmark = "^4.0"
-# Statistical testing
-hypothesis = "^6.34"
-# Cyclomatic complexity checker
-#radon = "^5.0"
-# Function profiler, checks how often functions get called
-snakeviz = "^2.1"
-# Line profiler
-# scalene = "^1" # Installation errors with python 3.12
-toml = "^0.10.2"
-# Linter
-ruff = "^0.1.14"
-# Type checker
-pyre-check = "^0.9.18"
-
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+[tool.uv]
+dev-dependencies = [
+    "hypothesis>=6.119.4",
+    "pyre-check>=0.9.21",
+    "pytest>=8.3.3",
+    "pytest-asyncio>=0.24.0",
+    "pytest-benchmark>=5.1.0",
+    "pytest-cov>=6.0.0",
+    "ruff>=0.8.0",
+    "snakeviz>=2.2.2",
+    "toml>=0.10.2",
+    "scalene>=1.5.42.2",
+    "radon>=6.0.1",
+]
 
 [tool.yapf]
 based_on_style = "pep8"

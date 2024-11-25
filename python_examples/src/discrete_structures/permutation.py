@@ -1,6 +1,7 @@
 """
 These are lexicographically ordered permutations.
 """
+
 from __future__ import annotations
 
 from math import factorial
