@@ -1,11 +1,11 @@
 # https://github.com/m-bain/whisperX
 import os
 from pathlib import Path
+from typing import Literal
 
 import whisperx  # pyre-fixme[21]
 from dotenv import load_dotenv
 from loguru import logger
-from typing_extensions import Literal
 from whisperx.types import AlignedTranscriptionResult, SingleAlignedSegment, SingleWordSegment
 
 from prisma import Prisma

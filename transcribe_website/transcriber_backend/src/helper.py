@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import zipfile
+from collections.abc import Iterable
 from io import BytesIO
 from pathlib import Path
-from typing import Iterable
 
 
 def recurse_path(path: Path, depth: int = 0) -> Iterable[Path]:

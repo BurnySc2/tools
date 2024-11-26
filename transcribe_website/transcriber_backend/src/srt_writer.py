@@ -3,13 +3,11 @@ Credits: https://github.com/m-bain/whisperX/issues/883
 """
 
 import io
-import os
 import re
 from pathlib import Path
 
-import whisperx
 from deepmultilingualpunctuation import PunctuationModel
-from whisperx.types import AlignedTranscriptionResult, SingleAlignedSegment, SingleWordSegment
+from whisperx.types import AlignedTranscriptionResult
 
 # Initialize PunctuationModel
 punct_model = PunctuationModel()

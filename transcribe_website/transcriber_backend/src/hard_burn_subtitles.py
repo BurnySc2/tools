@@ -23,9 +23,7 @@ def hard_burn_subtitles(input_video_path: Path, input_subtitle_srt_path: Path, o
 
 
 if __name__ == "__main__":
-    input_path = Path(
-        "my_file.mp4"
-    )
+    input_path = Path("my_file.mp4")
     subtitle_path = input_path.parent / f"{input_path.stem}.srt"
     output_path = input_path.parent / f"{input_path.stem}_with_subs.mp4"
 

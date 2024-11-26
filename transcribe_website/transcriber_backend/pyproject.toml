@@ -1,55 +1,54 @@
-[tool.poetry]
-name = "transcriber-backend"
+[project]
+name = "src"
 version = "0.1.0"
-description = ""
-authors = ["BuRny <gamingburny@gmail.com>"]
-#package-mode = false
+requires-python = ">=3.10, <3.14"
+dependencies = [
+    # Better datetime
+    "arrow>=1.3.0",
+    # Translator
+    "deep-translator>=1.11.4",
+    "deepmultilingualpunctuation>=1.0.1",
+    "faster-whisper==1.0.1",
+    # Display sizes in human readable format
+    "humanize>=4.11.0",
+    "langdetect>=1.0.9",
+    # Had to fix version to make poetry work
+    "llvmlite>=0.43.0",
+    # Logging
+    "loguru>=0.7.2",
+    "numba>=0.60.0",
+    "numpy<2",
+    # Database interaction
+    "prisma>=0.15.0",
+    # Better dataclasses
+    "pydantic>=2.10.1",
+    "python-dotenv>=1.0.1",
+    # Argparse with dataclass
+    "simple-parsing>=0.1.6",
+    # https://stackoverflow.com/a/76359919/10882657
+    "torch>=2.4.0",
+    "torchaudio>=2.4.0",
+    # Progress bar
+    "tqdm>=4.67.1",
+    "whisperx>=3.1.6",
+]
 
-[tool.poetry.dependencies]
-python = ">=3.10, <3.14"
-# Argparse with dataclass
-simple-parsing = "^0.1"
-# Better dataclasses
-pydantic = "^2"
-# Logging
-loguru = "^0.7"
-# Better datetime
-arrow = "^1.2"
-# Database interaction
-prisma = "^0.15"
-# Display sizes in human readable format
-humanize = "^4"
-# Progress bar
-tqdm = "^4"
-# Translator
-deep-translator = "^1"
-langdetect = "^1.0.9"
-python-dotenv = "^1"
-# https://stackoverflow.com/a/76359919/10882657
-torch = { version = "^2.4.1+cpu", source = "pytorch_cpu" }
-torchaudio = { version = "^2.4.1+cpu", source = "pytorch_cpu" }
-deepmultilingualpunctuation = "^1.0.1"
-# Had to fix version to make poetry work
-llvmlite = "0.43.0"
-numba = "0.60.0"
-numpy = "<2"
-whisperx = "^3.1.5"
-faster-whisper = "1.0.1"
+[tool.uv]
+dev-dependencies = [
+    # Type checker
+    "pyre-check>=0.9.23",
+    # Linter
+    "ruff>=0.8.0",
+]
 
-[tool.poetry.group.dev.dependencies]
-# Linter
-ruff = "^0.1.14"
-# Type checker
-pyre-check = "^0.9.23"
+[tool.uv.sources]
+torch = { index = "pytorch" }
+torchaudio = { index = "pytorch" }
 
-[[tool.poetry.source]]
-name = "pytorch_cpu"
+[[tool.uv.index]]
+name = "pytorch"
 url = "https://download.pytorch.org/whl/cpu"
-priority = "explicit"
-
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+explicit = true
 
 [tool.yapf]
 based_on_style = "pep8"

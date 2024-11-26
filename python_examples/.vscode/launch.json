@@ -14,15 +14,6 @@
             "env": {
                 "PYTHONPATH": "${workspaceFolder}"
             }
-        },
-        {
-            "name": "Python Examples: Run main.py",
-            "type": "python",
-            "request": "launch",
-            "cwd": "${workspaceFolder}",
-            "program": "main.py",
-            "console": "integratedTerminal",
-            "justMyCode": true
         }
     ]
 }

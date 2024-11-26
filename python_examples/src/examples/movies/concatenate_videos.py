@@ -27,8 +27,7 @@ def main():
         for file_path in sorted(folder_path.iterdir()):
             if file_path.suffix not in {".mp4"}:
                 continue
-            # Exclude 'output.mp4'
-            if file_path.name in {"output.mp4"}:
+            if file_path.name == OUTPUT_FILE.name:
                 continue
             input_files.append(file_path)
 

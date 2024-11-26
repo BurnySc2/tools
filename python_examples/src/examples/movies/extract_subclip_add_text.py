@@ -107,7 +107,7 @@ def convert_clip(
     clip.write_videofile(
         clip_out_path.as_posix(),
         codec="libx264",
-        preset="medium",
+        preset="faster",
         ffmpeg_params=["-crf", "20", "-c:a", "copy"],
     )
     # Force release memory

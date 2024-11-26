@@ -16,25 +16,6 @@
                 "PYTHONPATH": "${workspaceFolder}",
                 "PONY_DEBUG": "False",
             }
-        },
-        {
-            "name": "Transcriber_backend: Transcribe",
-            "type": "python",
-            "request": "launch",
-            "cwd": "${workspaceFolder}",
-            "program": "src/argparser.py",
-            "args": [
-                "--input_file",
-                "test/Eclypxe_-_Black_Roses_ft_Annamarie_Rosanio_Copyright_Free_Music.mp3",
-                "--task",
-                "Transcribe",
-                "--language",
-                "en",
-                "--model",
-                "Small"
-            ],
-            "console": "integratedTerminal",
-            "justMyCode": false
-        },
+        }
     ]
 }
