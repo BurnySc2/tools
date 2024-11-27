@@ -5,7 +5,6 @@ A "clip.txt" file containing start and end timestamp
 
 Iterates over the timestamps from clip.txt and videos in folder
 Cuts video and stores it as a separate file
-TODO Then finaally all cut videos are merged together with ffmpeg
 """
 
 import gc
@@ -15,6 +14,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from dotenv import load_dotenv
+from loguru import logger
 from moviepy.editor import CompositeVideoClip, TextClip, VideoFileClip  # pyre-fixme[21]
 
 load_dotenv()
@@ -27,16 +27,11 @@ videos_folder_path = [Path(p) for p in os.getenv("VIDEO_FOLDER_PATHS").split(";"
 # pyre-fixme[6]
 out_folder_path = Path(os.getenv("VIDEO_OUT_PATHS"))
 # Text to be added to video
-text_description = os.getenv("VIDEO_TEXT_DESCRPITION")
-
+TEXT_DESCRIPTION: str | None = os.getenv("VIDEO_TEXT_DESCRPITION")
+CLIP_CONTEXT = float(os.getenv("VIDEO_CONTEXT"))
 
 # Name of file containing the start- and end-timestamps
 timestamp_file_name = "clip.txt"
-
-
-CLIP_CONTEXT = 0.0
-
-
 out_folder_path.mkdir(parents=True, exist_ok=True)
 
 
@@ -81,6 +76,7 @@ def convert_clip(
     clip_index: int,
     word_count: int,
 ) -> None:
+    global TEXT_DESCRIPTION, CLIP_CONTEXT
     clip_out_path = out_folder_path / f"{clip_index:04d}.mp4"
     if clip_out_path.is_file():
         return
@@ -92,18 +88,19 @@ def convert_clip(
     clip: VideoFileClip = VideoFileClip(str(video_path.absolute())).subclip(timestamp_start, timestamp_end)
 
     # Display text counter
-    # TODO If no text given: don't add count to overlay
-    # pyre-fixme[11]
-    text: TextClip = TextClip(f"{text_description}{word_count}", fontsize=70, color="white")
-    text = text.set_position((360, clip.size[1] - text.size[1] - 10))
-    text = text.set_start(clip.start)
-    text = text.set_duration(clip.duration)
+    text: TextClip | None = None
+    if TEXT_DESCRIPTION is not None:
+        # If text given: add count to overlay
+        text = TextClip(f"{TEXT_DESCRIPTION}{word_count}", fontsize=70, color="white")
+        text = text.set_position((360, clip.size[1] - text.size[1] - 10))
+        text = text.set_start(clip.start)
+        text = text.set_duration(clip.duration)
 
-    clip = CompositeVideoClip([clip, text])
+        clip = CompositeVideoClip([clip, text])
 
     # Write result
     # https://moviepy.readthedocs.io/en/latest/ref/videotools.html?highlight=write_videofile#moviepy.video.tools.credits.CreditsClip.write_videofile
-    print(video_path.name, timestamp_start, timestamp_end)
+    logger.info(video_path.name, timestamp_start, timestamp_end)
     clip.write_videofile(
         clip_out_path.as_posix(),
         codec="libx264",
@@ -111,7 +108,8 @@ def convert_clip(
         ffmpeg_params=["-crf", "20", "-c:a", "copy"],
     )
     # Force release memory
-    text.close()
+    if text is not None:
+        text.close()
     clip.close()
     gc.collect()
 

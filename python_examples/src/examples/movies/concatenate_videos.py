@@ -39,6 +39,7 @@ def main():
     filelist_string = "\n".join(filelist_files) + "\n"
 
     filelist_path = OUTPUT_FILE.parent / "filelist.txt"
+    # TODO Remove file, use context manager
     filelist_path.write_text(filelist_string)
 
     # Issue ffmpeg to merge using file list
