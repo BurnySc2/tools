@@ -2,13 +2,11 @@ from __future__ import annotations
 
 import re
 from collections import Counter
+from collections import Counter as CounterType
 from dataclasses import dataclass
-from typing import Counter as CounterType
 
 from arrow import Arrow
-from db import DiscordMessage, supabase
 from hikari import Embed, GatewayBot, GuildMessageCreateEvent, KnownCustomEmoji
-from postgrest import APIResponse, AsyncSelectRequestBuilder  # pyre-fixme[21]
 from simple_parsing import ArgumentParser
 
 # How many emojis to list when counting

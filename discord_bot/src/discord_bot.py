@@ -24,7 +24,7 @@ from loguru import logger
 
 from cache import get_db
 
-# from commands.public_fetch_aoe4 import public_analyse_aoe4_game, public_fetch_aoe4_bo, public_search_aoe4_players
+from commands.public_fetch_aoe4 import public_analyse_aoe4_game, public_fetch_aoe4_bo, public_search_aoe4_players
 from commands.public_leaderboard import public_leaderboard
 from commands.public_mmr import public_mmr
 from commands.public_remind import Remind
@@ -286,11 +286,11 @@ async def handle_commands(event: GuildMessageCreateEvent, command: str, message:
         # "emotes": public_count_emotes,
         "twss": public_twss,
         "leaderboard": public_leaderboard,
-        # "aoe4find": public_search_aoe4_players,
-        # "aoe4search": public_search_aoe4_players,
-        # "aoe4bo": public_fetch_aoe4_bo,
-        # "aoe4analyse": public_analyse_aoe4_game,
-        # "aoe4analyze": public_analyse_aoe4_game,
+        "aoe4find": public_search_aoe4_players,
+        "aoe4search": public_search_aoe4_players,
+        "aoe4bo": public_fetch_aoe4_bo,
+        "aoe4analyse": public_analyse_aoe4_game,
+        "aoe4analyze": public_analyse_aoe4_game,
     }
     if command in function_mapping:
         function = function_mapping[command]

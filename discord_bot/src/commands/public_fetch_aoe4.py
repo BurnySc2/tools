@@ -8,7 +8,6 @@ import asyncio
 import enum
 import re
 from dataclasses import dataclass
-from typing import List, Optional, Union
 
 import aiohttp
 import arrow
@@ -61,7 +60,7 @@ class Condition(BaseModel):
     action: Action
     target_count: int
     operator: Operator
-    time_in_seconds: Optional[int] = None
+    time_in_seconds: int | None = None
 
     @staticmethod
     def from_string(condition: str) -> Condition:
@@ -369,19 +368,19 @@ async def public_fetch_aoe4_bo(
 
 
 class Social(BaseModel):
-    twitch: Optional[str]
-    twitter: Optional[str]
-    instagram: Optional[str]
-    liquipedia: Optional[str]
+    twitch: str | None
+    twitter: str | None
+    instagram: str | None
+    liquipedia: str | None
 
 
 class Leaderboard(BaseModel):
     rating: int
-    max_rating: Optional[int]
-    max_rating_7d: Optional[int]
-    max_rating_1m: Optional[int]
-    rank: Optional[int]
-    rank_level: Optional[str] = None
+    max_rating: int | None
+    max_rating_7d: int | None
+    max_rating_1m: int | None
+    rank: int | None
+    rank_level: str | None = None
     streak: int
     games_count: int
     wins_count: int
@@ -395,21 +394,21 @@ class Leaderboard(BaseModel):
 
 
 class Leaderboards(BaseModel):
-    rm_team: Optional[Leaderboard] = None
-    rm_1v1_elo: Optional[Leaderboard] = None
-    rm_2v2_elo: Optional[Leaderboard] = None
-    rm_3v3_elo: Optional[Leaderboard] = None
-    rm_4v4_elo: Optional[Leaderboard] = None
+    rm_team: Leaderboard | None = None
+    rm_1v1_elo: Leaderboard | None = None
+    rm_2v2_elo: Leaderboard | None = None
+    rm_3v3_elo: Leaderboard | None = None
+    rm_4v4_elo: Leaderboard | None = None
 
 
 class PlayerSearchResult(BaseModel):
     name: str
     profile_id: int
     steam_id: str
-    country: Optional[str] = None
+    country: str | None = None
     social: Social
-    last_game_at: Optional[str]
-    leaderboards: Optional[Leaderboards]
+    last_game_at: str | None
+    leaderboards: Leaderboards | None
 
     @property
     def last_game_at_arrow(self) -> arrow.Arrow:
@@ -419,13 +418,13 @@ class PlayerSearchResult(BaseModel):
 
 
 class PlayerOfTeam(BaseModel):
-    profile_id: Optional[int]
-    name: Optional[str]
-    result: Optional[str]
+    profile_id: int | None
+    name: str | None
+    result: str | None
     civilization: str
-    civilization_randomized: Optional[bool]
-    rating: Optional[int]
-    rating_diff: Optional[int]
+    civilization_randomized: bool | None
+    rating: int | None
+    rating_diff: int | None
 
 
 class PlayerOfTeamEntry(BaseModel):
@@ -436,37 +435,37 @@ class GameResult(BaseModel):
     game_id: int
     started_at: str
     updated_at: str
-    duration: Optional[int]
+    duration: int | None
     map: str
     kind: str
     leaderboard: str
     season: int
     server: str
     patch: int
-    average_rating: Optional[int]
+    average_rating: int | None
     ongoing: bool
     just_finished: bool
-    teams: List[List[PlayerOfTeamEntry]]
+    teams: list[list[PlayerOfTeamEntry]]
 
 
 class FinishedActions(BaseModel):
-    feudal_age: List[int] = Field(default_factory=list)
-    castle_age: List[int] = Field(default_factory=list)
-    imperial_age: List[int] = Field(default_factory=list)
-    upgrade_unit_town_center_wheelbarrow_1: List[int] = Field(default_factory=list)
+    feudal_age: list[int] = Field(default_factory=list)
+    castle_age: list[int] = Field(default_factory=list)
+    imperial_age: list[int] = Field(default_factory=list)
+    upgrade_unit_town_center_wheelbarrow_1: list[int] = Field(default_factory=list)
     # TODO More upgrades
 
 
 class BuildOrderItem(BaseModel):
-    id: Optional[Union[str, int]]
+    id: str | int | None
     icon: str
     type: str
-    finished: List[int]
-    constructed: List[int]
-    packed: List[int]
-    unpacked: List[int]
-    transformed: List[int]
-    destroyed: List[int]
+    finished: list[int]
+    constructed: list[int]
+    packed: list[int]
+    unpacked: list[int]
+    transformed: list[int]
+    destroyed: list[int]
 
     @validator("id", check_fields=False)
     def format_id(cls, v: str | int | None) -> int | None:
@@ -500,13 +499,13 @@ def format_time(timestamps: list[int]) -> str:
 
 
 class GamePlayerData(BaseModel):
-    profile_id: Optional[int]
-    name: Optional[str]
+    profile_id: int | None
+    name: str | None
     civilization: str
     team: int
-    apm: Optional[int]
+    apm: int | None
     actions: FinishedActions
-    build_order: List[BuildOrderItem]
+    build_order: list[BuildOrderItem]
 
     def finished_list_of_icon(self, icon_name: str) -> list[int]:
         for item in self.build_order:
