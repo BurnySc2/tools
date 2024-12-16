@@ -34,6 +34,7 @@ load_dotenv()
 STAGE = os.getenv("STAGE")
 assert STAGE in {"DEV", "PROD"}, STAGE
 
+# pyre-fixme[6]
 bot = GatewayBot(token=os.getenv("DISCORD_KEY"), intents=Intents.ALL)
 BOT_USER_ID: int = -1
 

@@ -73,16 +73,14 @@ async def load_csv_to_postgres() -> None:
 
             await db.discordquote.create(
                 data={
-                    {
-                        "message_id": messge_id,
-                        "guild_id": 447056980960346113,
-                        "channel_id": 1037477281200877608,
-                        "author_id": user_id,
-                        "who": name,
-                        "when": time_arrow.datetime,
-                        "what": content,
-                        "emoji_name": "twss",
-                    }
+                    "message_id": messge_id,
+                    "guild_id": 447056980960346113,
+                    "channel_id": 1037477281200877608,
+                    "author_id": user_id,
+                    "who": name,
+                    "when": time_arrow.datetime,
+                    "what": content,
+                    "emoji_name": "twss",
                 }
             )
 

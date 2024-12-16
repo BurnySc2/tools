@@ -1,13 +1,14 @@
+from __future__ import annotations
+
 from enum import Enum
-from typing import Optional
 
 from pydantic import BaseModel, Field
 
 
 class Stats(BaseModel):
-    rating: Optional[int] = None
-    games_played: Optional[int] = Field(..., alias="gamesPlayed")
-    rank: Optional[int] = None
+    rating: int | None = None
+    games_played: int | None = Field(..., alias="gamesPlayed")
+    rank: int | None = None
 
 
 class Partition(Enum):
@@ -40,12 +41,12 @@ class Clan(BaseModel):
     tag: str
     id: int
     region: Region
-    name: Optional[str]
-    members: Optional[int]
-    active_members: Optional[int] = Field(..., alias="activeMembers")
-    avg_rating: Optional[int] = Field(..., alias="avgRating")
-    avg_league_type: Optional[int] = Field(..., alias="avgLeagueType")
-    games: Optional[int]
+    name: str | None
+    members: int | None
+    active_members: int | None = Field(..., alias="activeMembers")
+    avg_rating: int | None = Field(..., alias="avgRating")
+    avg_league_type: int | None = Field(..., alias="avgLeagueType")
+    games: int | None
 
 
 class Members(BaseModel):
@@ -53,7 +54,7 @@ class Members(BaseModel):
     account: Account
     zerg_games_played: int = Field(0, alias="zergGamesPlayed")
     terran_games_played: int = Field(0, alias="terranGamesPlayed")
-    clan: Optional[Clan] = None
+    clan: Clan | None = None
     protoss_games_played: int = Field(0, alias="protossGamesPlayed")
     random_games_played: int = Field(0, alias="randomGamesPlayed")
 

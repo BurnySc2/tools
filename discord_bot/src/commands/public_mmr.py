@@ -98,6 +98,7 @@ async def public_mmr(
     async with aiohttp.ClientSession() as session:
         # It might fit 15 results in discord
         url = f"https://www.nephest.com/sc2/api/characters?name={query_name}"
+        # pyre-fixme[16]
         async with session.get(url) as response:
             if response.status != 200:
                 return f"Error: Status code `{response.status}` for query `{query_name}`"
