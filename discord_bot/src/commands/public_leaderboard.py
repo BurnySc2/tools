@@ -6,12 +6,11 @@ from dataclasses import dataclass
 import hikari
 from hikari import GatewayBot, GuildMessageCreateEvent, Member
 from loguru import logger
-from postgrest import APIResponse, AsyncSelectRequestBuilder  # pyre-fixme[21]
 from simple_parsing import ArgumentParser, field
 from table2ascii import Alignment, PresetStyle
 from table2ascii import table2ascii as t2a
 
-from cache import DiscordMessage, supabase
+from cache import get_db
 
 
 @dataclass
@@ -136,60 +135,62 @@ async def public_leaderboard(
 
 
 async def get_leaderboard_all(server_id: int, start_rank: int, end_rank: int) -> list[dict]:
-    query: AsyncSelectRequestBuilder = (  # pyre-fixme[11]
-        supabase.table(DiscordMessage.table_name_leaderboard_all())
-        .select(
-            "guild_id, author_id, count",
-        )
-        .eq(
-            "guild_id",
+    query = """
+SELECT guild_id, author_id, count(*) AS count
+FROM discord_message
+WHERE guild_id = $1
+GROUP BY guild_id, author_id
+ORDER BY count DESC
+LIMIT $2
+OFFSET $3;
+"""
+    async with get_db() as db:
+        return await db.query_raw(
+            query,
             server_id,
-        )
-        .range(  # https://supabase.com/docs/reference/javascript/range
+            end_rank - start_rank,
             start_rank - 1,
-            end_rank,
         )
-    )
-    query_response: APIResponse = await query.execute()  # pyre-fixme[11]
-    return query_response.data
 
 
 async def get_leaderboard_month(server_id: int, start_rank: int, end_rank: int) -> list[dict]:
-    query: AsyncSelectRequestBuilder = (
-        supabase.table(DiscordMessage.table_name_leaderboard_month())
-        .select(
-            "guild_id, author_id, count",
-        )
-        .eq(
-            "guild_id",
+    query = """
+SELECT guild_id, author_id, count(*) AS count
+FROM discord_message
+WHERE guild_id = $1
+    AND date_trunc('month', now()) < discord_message.when
+GROUP BY guild_id, author_id
+ORDER BY count DESC
+LIMIT $2
+OFFSET $3;
+"""
+    async with get_db() as db:
+        return await db.query_raw(
+            query,
             server_id,
-        )
-        .range(
+            end_rank - start_rank,
             start_rank - 1,
-            end_rank,
         )
-    )
-    query_response: APIResponse = await query.execute()
-    return query_response.data
 
 
 async def get_leaderboard_week(server_id: int, start_rank: int, end_rank: int) -> list[dict]:
-    query: AsyncSelectRequestBuilder = (
-        supabase.table(DiscordMessage.table_name_leaderboard_week())
-        .select(
-            "guild_id, author_id, count",
-        )
-        .eq(
-            "guild_id",
+    query = """
+SELECT guild_id, author_id, count(*) AS count
+FROM discord_message
+WHERE guild_id = $1
+    AND date_trunc('week', now()) < discord_message.when
+GROUP BY guild_id, author_id
+ORDER BY count DESC
+LIMIT $2
+OFFSET $3;
+"""
+    async with get_db() as db:
+        return await db.query_raw(
+            query,
             server_id,
-        )
-        .range(
+            end_rank - start_rank,
             start_rank - 1,
-            end_rank,
         )
-    )
-    query_response: APIResponse = await query.execute()
-    return query_response.data
 
 
 async def main() -> None:

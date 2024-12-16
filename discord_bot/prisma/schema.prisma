@@ -18,6 +18,8 @@ model DiscordMessage {
   who        String // e.g. "BuRny#123456"
   when       DateTime
   what       String // TODO Ignore text
+
+  @@map("discord_message")
 }
 
 model DiscordQuote {
@@ -30,6 +32,8 @@ model DiscordQuote {
   when       DateTime
   what       String
   emoji_name String // The name of the emoji, e.g. "twss"
+
+  @@map("discord_quote")
 }
 
 model Reminder {
@@ -41,4 +45,6 @@ model Reminder {
   user_name    String // e.g. "BuRny#123456"
   message_id   BigInt   @unique
   message      String
+
+  @@map("reminder")
 }

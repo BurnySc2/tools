@@ -25,7 +25,7 @@ from loguru import logger
 from cache import get_db
 
 # from commands.public_fetch_aoe4 import public_analyse_aoe4_game, public_fetch_aoe4_bo, public_search_aoe4_players
-# from commands.public_leaderboard import public_leaderboard
+from commands.public_leaderboard import public_leaderboard
 # from commands.public_mmr import public_mmr
 from commands.public_remind import Remind
 
@@ -130,6 +130,9 @@ async def insert_messages_of_channel_to_db(server: OwnGuild, channel: GuildTextC
         return
 
     async with get_db() as db:
+        # TODO only grab message ids to not insert duplicates
+        message_ids = await db.query_raw("SELECT message_id FROM discord_message;")
+        assert False
         messages = await db.discordmessage.find_many(where={})
         message_ids = {message.message_id for message in messages}
 
@@ -153,6 +156,7 @@ async def get_all_servers() -> AsyncGenerator[OwnGuild, Any]:
     server: OwnGuild
     async for server in bot.rest.fetch_my_guilds():
         yield server
+        # TODO Fix off stream due to potential leak
         if STAGE == "PROD":
             # Add all messages to DB
             async for channel in get_text_channels_of_server(server):
@@ -282,7 +286,7 @@ async def handle_commands(event: GuildMessageCreateEvent, command: str, message:
         # "mmr": public_mmr,
         # "emotes": public_count_emotes,
         # "twss": public_twss,
-        # "leaderboard": public_leaderboard,
+        "leaderboard": public_leaderboard,
         # "aoe4find": public_search_aoe4_players,
         # "aoe4search": public_search_aoe4_players,
         # "aoe4bo": public_fetch_aoe4_bo,
