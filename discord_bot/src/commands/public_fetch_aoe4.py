@@ -1,6 +1,7 @@
 """Fetches build orders with certain conditions.
 Searches aoe4 players.
 Analyses games."""
+
 from __future__ import annotations
 
 import asyncio

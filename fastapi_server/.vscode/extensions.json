@@ -6,7 +6,6 @@
         "tamasfe.even-better-toml",
         "earthly.earthfile-syntax-highlighting",
         "quicktype.quicktype",
-        "eeyore.yapf",
         "bradlc.vscode-tailwindcss",
         "trapfether.tailwind-raw-reorder",
         "samuelcolvin.jinjahtml",

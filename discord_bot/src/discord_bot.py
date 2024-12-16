@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 import asyncio
+import os
+from collections.abc import AsyncGenerator, Awaitable, Callable
 from pathlib import Path
-from typing import Any, AsyncGenerator, Awaitable, Callable
+from typing import Any
 
 import hikari.errors
-import httpx
-import postgrest  # pyre-fixme[21]
+from dotenv import load_dotenv
 from hikari import (
     Embed,
     GatewayBot,
@@ -20,16 +21,22 @@ from hikari import (
 )
 from hikari.channels import ChannelType
 from loguru import logger
-from postgrest import APIResponse
 
-from commands.public_fetch_aoe4 import public_analyse_aoe4_game, public_fetch_aoe4_bo, public_search_aoe4_players
-from commands.public_leaderboard import public_leaderboard
-from commands.public_mmr import public_mmr
+from cache import get_db
+
+# from commands.public_fetch_aoe4 import public_analyse_aoe4_game, public_fetch_aoe4_bo, public_search_aoe4_players
+# from commands.public_leaderboard import public_leaderboard
+# from commands.public_mmr import public_mmr
 from commands.public_remind import Remind
-from commands.public_twss import public_twss
-from db import SECRETS, DiscordMessage, DiscordQuotes, supabase
 
-bot = GatewayBot(token=SECRETS.discord_key, intents=Intents.ALL)
+# from commands.public_twss import public_twss
+
+load_dotenv()
+
+STAGE = os.getenv("STAGE")
+assert STAGE in {"DEV", "PROD"}, STAGE
+
+bot = GatewayBot(token=os.getenv("DISCORD_KEY"), intents=Intents.ALL)
 BOT_USER_ID: int = -1
 
 # Discord command prefix
@@ -74,7 +81,7 @@ async def generic_command_caller(
         sent_message = await event.message.respond(f"{event.author.mention} {response}", reply=False)
     if add_remove_emoji:
         # https://www.fileformat.info/info/unicode/char/274c/index.htm
-        await sent_message.add_reaction("\u274C")
+        await sent_message.add_reaction("\u274c")
 
 
 async def loop_function() -> None:
@@ -95,25 +102,18 @@ async def get_text_channels_of_server(server: OwnGuild) -> AsyncGenerator[GuildT
 
 async def add_message_to_db(server_id: int, channel_id: int, message: Message) -> None:
     """Insert message into database. Ignore if it's a duplicate"""
-    try:
-        await (
-            supabase.table(DiscordMessage.table_name())
-            .insert(
-                {
-                    "message_id": message.id,
-                    "guild_id": server_id,
-                    "channel_id": channel_id,
-                    "author_id": message.author.id,
-                    "who": str(message.author),
-                    "when": str(message.created_at),
-                    "what": message.content,
-                }
-            )
-            .execute()
+    async with get_db() as db:
+        await db.discordmessage.create(
+            data={
+                "message_id": message.id,
+                "guild_id": server_id,
+                "channel_id": channel_id,
+                "author_id": message.author.id,
+                "who": str(message.author),
+                "when": message.created_at,
+                "what": message.content,  # TODO Ignore text
+            }
         )
-    # pyre-fixme[66]
-    except postgrest.exceptions.APIError:
-        logger.error(f"Mesage already exists or could not insert message: {message.id}")
 
 
 async def insert_messages_of_channel_to_db(server: OwnGuild, channel: GuildTextChannel) -> None:
@@ -129,22 +129,14 @@ async def insert_messages_of_channel_to_db(server: OwnGuild, channel: GuildTextC
         logger.error(f"Last message in channel '{channel}' in server '{server}' could not be fetched")
         return
 
-    # pyre-fixme[11]
-    all_message_ids_response: APIResponse = (
-        await supabase.table(DiscordMessage.table_name())
-        .select("message_id")
-        .eq(
-            "channel_id",
-            channel.id,
-        )
-        .execute()
-    )
-    message_ids_already_exist_in_db: set[int] = {row["message_id"] for row in all_message_ids_response.data}
+    async with get_db() as db:
+        messages = await db.discordmessage.find_many(where={})
+        message_ids = {message.message_id for message in messages}
 
     messages_inserted_count = 0
     async for message in channel.fetch_history():
         # Don't process duplicates
-        if message.id in message_ids_already_exist_in_db:
+        if message.id in message_ids:
             continue
         # Ignore bot and webhook messages
         if message.author.is_bot:
@@ -158,23 +150,10 @@ async def insert_messages_of_channel_to_db(server: OwnGuild, channel: GuildTextC
 
 
 async def get_all_servers() -> AsyncGenerator[OwnGuild, Any]:
-    try:
-        _check_if_supabase_is_up: APIResponse = (
-            await supabase.table(DiscordMessage.table_name())
-            .select(
-                "message_id",
-            )
-            .limit(1)
-            .execute()
-        )
-    except httpx.ConnectError as e:
-        logger.trace(f"Error trying to access supabase: {e}")
-        return
-
     server: OwnGuild
     async for server in bot.rest.fetch_my_guilds():
         yield server
-        if SECRETS.stage == "PROD":
+        if STAGE == "PROD":
             # Add all messages to DB
             async for channel in get_text_channels_of_server(server):
                 # Create a coroutine that works in background to add messages of specific server and channel to database
@@ -186,7 +165,7 @@ async def on_start(_event: StartedEvent) -> None:
     global BOT_USER_ID
     logger.info("Bot started")
     BOT_USER_ID = (await bot.rest.fetch_my_user()).id
-    await my_reminder.load_reminders()
+    await my_reminder.fetch_next_reminder()
     # Call another async function that runs forever
     asyncio.create_task(loop_function())
     async for server_name in get_all_servers():
@@ -200,9 +179,9 @@ async def handle_reaction_add(event: GuildReactionAddEvent) -> None:
 
     channel: GuildTextChannel = await bot.rest.fetch_channel(event.channel_id)  # pyre-fixme[9]
     # Use channel 'bot_tests' only for development
-    if SECRETS.stage == "DEV" and channel.name != "bot_tests":
+    if STAGE == "DEV" and channel.name != "bot_tests":
         return
-    if SECRETS.stage == "PROD" and channel.name == "bot_tests":
+    if STAGE == "PROD" and channel.name == "bot_tests":
         return
 
     message: Message = await bot.rest.fetch_message(event.channel_id, event.message_id)
@@ -217,7 +196,7 @@ async def handle_reaction_add(event: GuildReactionAddEvent) -> None:
         message.author.id == BOT_USER_ID
         and message.content
         and f"<@{event.user_id}>" in message.content
-        and event.is_for_emoji("\u274C")
+        and event.is_for_emoji("\u274c")
     ):
         await message.delete()
         return
@@ -225,56 +204,37 @@ async def handle_reaction_add(event: GuildReactionAddEvent) -> None:
     # If "twss" reacted and reaction count >=3: add quote to db
     allowed_emoji_names = {"twss"}
     target_emoji_count = 3
-    if SECRETS.stage == "DEV" and channel.name == "bot_tests":
+    if STAGE == "DEV" and channel.name == "bot_tests":
         allowed_emoji_names = {"burnysStalker"}
         target_emoji_count = 1
     if not message.author.is_bot and event.emoji_name in allowed_emoji_names:
         for reaction in message.reactions:
             if reaction.emoji.name in allowed_emoji_names and reaction.count >= target_emoji_count:
                 # Add quote to db
-                if SECRETS.stage == "PROD":
-                    try:
-                        await (
-                            supabase.table(DiscordQuotes.table_name())
-                            .insert(
-                                {
-                                    "message_id": message.id,
-                                    "guild_id": event.guild_id,
-                                    "channel_id": event.channel_id,
-                                    "author_id": message.author.id,
-                                    "who": str(message.author),
-                                    "when": str(message.created_at),
-                                    "what": message.content,
-                                    "emoji_name": reaction.emoji.name,
-                                }
-                            )
-                            .execute()
+                if STAGE == "PROD":
+                    async with get_db() as db:
+                        await db.discordquote.create(
+                            data={
+                                "message_id": message.id,
+                                "guild_id": event.guild_id,
+                                "channel_id": event.channel_id,
+                                "author_id": message.author.id,
+                                "who": str(message.author),
+                                "when": message.created_at,
+                                "what": message.content,
+                                "emoji_name": reaction.emoji.name,
+                            }
                         )
-                    # pyre-fixme[66]
-                    except postgrest.exceptions.APIError as e:
-                        if (
-                            e.message
-                            != f'duplicate key value violates unique constraint "{DiscordQuotes.table_name()}_pkey"'
-                        ):
-                            raise
-                        logger.error(f"Quote already exists: {message.id}")
-                        return
                 logger.info(f"Added quote: {message.content}")
 
                 # Notify people in channel that a quote has been added
                 # TODO and how many there are now in total
-                quote = DiscordQuotes(
-                    when=str(message.created_at),
-                    who=message.author.username,
-                    what=message.content or "",
-                )
                 response_message = (
-                    f'Added {reaction.emoji.name} quote:\n{quote.when_arrow.strftime("%Y-%m-%d")} '
-                    f'{quote.who}: {quote.what}'
+                    f'Added {reaction.emoji.name} quote:\n{message.created_at.strftime("%Y-%m-%d")} '
+                    f'{str(message.author)}: {message.content}'
                 )
                 await channel.send(response_message)
                 return
-        return
 
 
 @bot.listen()
@@ -284,9 +244,9 @@ async def handle_new_message(event: GuildMessageCreateEvent) -> None:
     if not channel:
         return
     # Use channel 'bot_tests' only for development
-    if SECRETS.stage == "DEV" and channel.name != "bot_tests":
+    if STAGE == "DEV" and channel.name != "bot_tests":
         return
-    if SECRETS.stage == "PROD" and channel.name == "bot_tests":
+    if STAGE == "PROD" and channel.name == "bot_tests":
         return
 
     # Do not react if messages sent by webhook or bot, or message is empty
@@ -319,15 +279,15 @@ async def handle_commands(event: GuildMessageCreateEvent, command: str, message:
         "reminders": my_reminder.public_list_reminders,
         "delreminder": my_reminder.public_del_remind,
         "dr": my_reminder.public_del_remind,
-        "mmr": public_mmr,
+        # "mmr": public_mmr,
         # "emotes": public_count_emotes,
-        "twss": public_twss,
-        "leaderboard": public_leaderboard,
-        "aoe4find": public_search_aoe4_players,
-        "aoe4search": public_search_aoe4_players,
-        "aoe4bo": public_fetch_aoe4_bo,
-        "aoe4analyse": public_analyse_aoe4_game,
-        "aoe4analyze": public_analyse_aoe4_game,
+        # "twss": public_twss,
+        # "leaderboard": public_leaderboard,
+        # "aoe4find": public_search_aoe4_players,
+        # "aoe4search": public_search_aoe4_players,
+        # "aoe4bo": public_fetch_aoe4_bo,
+        # "aoe4analyse": public_analyse_aoe4_game,
+        # "aoe4analyze": public_analyse_aoe4_game,
     }
     if command in function_mapping:
         function = function_mapping[command]

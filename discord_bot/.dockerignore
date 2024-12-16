@@ -1,2 +1,12 @@
+.benchmarks/*
+.env*
+.pyre/*
+.pytest_cache/*
+.ruff_cache/*
+.venv
+.vscode/*
+*__pycache__*
+
 *test*/*
-SECRETS.toml
+data
+*.mp3

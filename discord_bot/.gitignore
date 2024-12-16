@@ -1,2 +1,4 @@
-SECRETS.toml
-data/
+.env
+.env.server
+
+data

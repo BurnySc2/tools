@@ -3,11 +3,10 @@ from pathlib import Path
 from typing import Optional, Set
 
 import arrow
+from db import DiscordQuotes, supabase
 from hikari import GatewayBot, GuildMessageCreateEvent
 from loguru import logger
 from postgrest import APIResponse, AsyncSelectRequestBuilder  # pyre-fixme[21]
-
-from db import DiscordQuotes, supabase
 
 
 async def public_twss(
@@ -93,7 +92,7 @@ async def load_csv_to_supabase() -> None:
                     "channel_id": 1037477281200877608,
                     "author_id": user_id,
                     "who": name,
-                    "when": str(time_arrow.datetime),
+                    "when": time_arrow.datetime,
                     "what": content,
                     "emoji_name": "twss",
                 }

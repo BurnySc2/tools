@@ -1,60 +1,14 @@
 from __future__ import annotations
 
 import asyncio
-import json
 import re
-from heapq import heapify, heappop, heappush
-from pathlib import Path
 
 import arrow
-from hikari import Embed, GatewayBot, GuildMessageCreateEvent, Message, NotFoundError, PartialChannel, User
+from hikari import Embed, GatewayBot, GuildMessageCreateEvent, Message, NotFoundError, User
 from loguru import logger
 
-
-class Reminder:
-    def __init__(
-        self,
-        reminder_utc_timestamp: float = 0,
-        user_id: int = 0,
-        user_name: str = "",
-        guild_id: int = 0,
-        channel_id: int = 0,
-        message: str = "",
-        message_id: int = 0,
-    ):
-        self.reminder_utc_timestamp: float = reminder_utc_timestamp
-        self.guild_id: int = guild_id
-        self.channel_id: int = channel_id
-        self.user_id: int = user_id
-        self.user_name: str = user_name
-        self.message: str = message
-        self.message_id: int = message_id
-
-    def __lt__(self, other: Reminder):
-        return self.reminder_utc_timestamp < other.reminder_utc_timestamp
-
-    @staticmethod
-    def from_dict(dictionary) -> Reminder:
-        r: Reminder = Reminder()
-        r.__dict__.update(dictionary)
-        return r
-
-    def to_dict(self) -> dict[str, float | str]:
-        return {
-            "reminder_utc_timestamp": self.reminder_utc_timestamp,
-            "guild_id": self.guild_id,
-            "channel_id": self.channel_id,
-            "user_id": self.user_id,
-            "user_name": self.user_name,
-            "message": self.message,
-            "message_id": self.message_id,
-        }
-
-    def __repr__(self) -> str:
-        return (
-            f"Reminder({self.reminder_utc_timestamp} {self.guild_id} {self.channel_id} {self.user_id} "
-            f"{self.user_name} {self.message})"
-        )
+from cache import get_db
+from prisma import models
 
 
 class Remind:
@@ -71,82 +25,57 @@ Example usage:
     def __init__(self, client: GatewayBot):
         super().__init__()
         self.client: GatewayBot = client
-        self.reminders: list[tuple[float, Reminder]] = []
-        self.reminder_file_path: Path = Path(__file__).parent.parent / "data" / "reminders.json"
+        self.next_reminder: models.Reminder | None = None
         # Limit of reminders per person
         self.reminder_limit = 20
 
-    async def load_reminders(self):
-        if self.reminder_file_path.is_file():
-            with self.reminder_file_path.open() as f:
-                reminders = json.load(f)
-                # Append them in order in the minheap
-                self.reminders = []
-                for reminder in reminders:
-                    r: Reminder = Reminder.from_dict(reminder)
-                    heappush(self.reminders, (r.reminder_utc_timestamp, r))
-        else:
-            self.reminders = []
-            await self.save_reminders()
-
-    async def save_reminders(self):
-        with self.reminder_file_path.open(mode="w") as f:
-            reminders_serialized = [reminder[1].to_dict() for reminder in self.reminders]
-            json.dump(reminders_serialized, f, indent=2)
+    async def fetch_next_reminder(self) -> None:
+        async with get_db() as db:
+            next_reminder = await db.reminder.find_first(order=[{"reminder_utc": "asc"}])
+            if next_reminder is not None:
+                self.next_reminder = next_reminder
 
     async def tick(self):
         """Function gets called every second."""
-        need_to_save_reminders = False
         reminded: bool = True
-        while self.reminders and reminded:
+        utc_now = arrow.utcnow().datetime
+
+        while self.next_reminder is not None and reminded is True:
             reminded = False
-            # First element, but is stored as tuple
-            reminder: Reminder = self.reminders[0][1]
-            reminder_time: arrow.Arrow = arrow.Arrow.utcfromtimestamp(reminder.reminder_utc_timestamp)
-            time_now: arrow.Arrow = arrow.utcnow()
-            if reminder_time < time_now:
-                reminder = heappop(self.reminders)[1]
-                need_to_save_reminders = True
+            if self.next_reminder.reminder_utc < utc_now:
+                # Run remind, remind user in discord
                 reminded = True
-                person: User = await self._get_user_by_id(reminder.user_id)
-                logger.info(f"Attempting to remind {person.username} of: {reminder.message}")
+                person: User = await self._get_user_by_id(self.next_reminder.user_id)
+                logger.info(f"Attempting to remind {person.username} of: {self.next_reminder.message}")
                 try:
                     # The original !reminder message may have been deleted
-                    message: Message = await self._get_message_by_id(reminder.channel_id, reminder.message_id)
+                    message: Message = await self._get_message_by_id(
+                        self.next_reminder.channel_id,
+                        self.next_reminder.message_id,
+                    )
                     link: str = message.make_link(message.guild_id) + "\n"
                 except NotFoundError:
                     link = ""
-                await person.send(f"{link}You wanted to be reminded of: {reminder.message}")
+                await person.send(f"{link}You wanted to be reminded of: {self.next_reminder.message}")
 
-        # Save reminder to file because we did remind a person now
-        if need_to_save_reminders:
-            await self.save_reminders()
+                # Remove reminder from db
+                async with get_db() as db:
+                    await db.reminder.delete(where={"id": self.next_reminder.id})
+                    self.next_reminder = None
 
-    async def _add_reminder(self, reminder: Reminder):
-        heappush(self.reminders, (reminder.reminder_utc_timestamp, reminder))
-        await self.save_reminders()
+                # Fetch next reminder
+                await self.fetch_next_reminder()
 
     async def _get_user_by_id(self, user_id: int) -> User:
         return await self.client.rest.fetch_user(user_id)
 
-    async def _get_channel_by_id(self, channel_id: int) -> PartialChannel:
-        return await self.client.rest.fetch_channel(channel_id)
-
     async def _get_message_by_id(self, channel_id: int, message_id: int) -> Message:
         return await self.client.rest.fetch_message(channel_id, message_id)
 
-    async def _get_all_reminders_by_user_id(self, user_id: int) -> list[Reminder]:
-        user_reminders: list[Reminder] = []
-        reminders_copy = self.reminders.copy()
-        while reminders_copy:
-            r: Reminder = heappop(reminders_copy)[1]
-            if user_id == r.user_id:
-                user_reminders.append(r)
-        return user_reminders
-
     async def _user_reached_max_reminder_threshold(self, user_id: int) -> bool:
-        user_reminders = await self._get_all_reminders_by_user_id(user_id)
-        return len(user_reminders) >= self.reminder_limit
+        async with get_db() as db:
+            count = await db.reminder.count(where={"user_id": user_id})
+            return count >= self.reminder_limit
 
     async def _parse_date_and_time_from_message(self, message: str) -> tuple[arrow.Arrow, str] | None:
         time_now: arrow.Arrow = arrow.utcnow()
@@ -254,7 +183,7 @@ Example usage:
         """Reminds the user in a couple days, hours or minutes with a certain message."""
         threshold_reached: bool = await self._user_reached_max_reminder_threshold(event.author_id)
         if threshold_reached:
-            return f"You already have {self.reminder_limit} / {self.reminder_limit} reminders, which is the maximum."
+            return f"You have reached the limit of {self.reminder_limit} reminders."
 
         result = await self._parse_time_shift_from_message(reminder_message)
         if result is None:
@@ -266,16 +195,21 @@ Example usage:
         guild = event.get_guild()
         if not channel or not guild:
             return
-        reminder: Reminder = Reminder(
-            reminder_utc_timestamp=future_reminder_time.timestamp(),
-            user_id=event.author_id,
-            user_name=event.author.username,
-            guild_id=guild.id,
-            channel_id=channel.id,
-            message=reminder_message,
-            message_id=event.message_id,
-        )
-        await self._add_reminder(reminder)
+        async with get_db() as db:
+            await db.reminder.create(
+                data={
+                    "reminder_utc": future_reminder_time.datetime,
+                    "user_id": event.author_id,
+                    "user_name": event.author.username,
+                    "guild_id": guild.id,
+                    "channel_id": channel.id,
+                    "message": reminder_message,
+                    "message_id": event.message_id,
+                }
+            )
+        # New reminder might be newer than currently cached reminder
+        await self.fetch_next_reminder()
+
         # Tell the user that the reminder was added successfully
         output_message: str = f"You will be reminded {future_reminder_time.humanize()} of: {reminder_message}"
         return output_message
@@ -289,11 +223,7 @@ Example usage:
         """Add a reminder which reminds you at a certain time or date."""
         threshold_reached: bool = await self._user_reached_max_reminder_threshold(event.author_id)
         if threshold_reached:
-            user_reminders = await self._get_all_reminders_by_user_id(event.author_id)
-            return (
-                f"You already have {len(user_reminders)} / {self.reminder_limit} reminders, "
-                f"which is higher than the limit."
-            )
+            return f"You have reached the limit of {self.reminder_limit} reminders."
 
         time_now: arrow.Arrow = arrow.utcnow()
 
@@ -320,18 +250,23 @@ Example usage:
         if not channel or not guild:
             return
         if time_now < future_reminder_time:
-            reminder: Reminder = Reminder(
-                reminder_utc_timestamp=future_reminder_time.timestamp(),
-                user_id=event.author_id,
-                user_name=event.author.username,
-                guild_id=guild.id,
-                channel_id=channel.id,
-                message=reminder_message,
-                message_id=event.message_id,
-            )
-            await self._add_reminder(reminder)
+            async with get_db() as db:
+                await db.reminder.create(
+                    data={
+                        "reminder_utc": future_reminder_time.datetime,
+                        "user_id": event.author_id,
+                        "user_name": event.author.username,
+                        "guild_id": guild.id,
+                        "channel_id": channel.id,
+                        "message": reminder_message,
+                        "message_id": event.message_id,
+                    }
+                )
+            # New reminder might be newer than currently cached reminder
+            await self.fetch_next_reminder()
+
             # Tell the user that the reminder was added successfully
-            output_message: str = f"You will be reminded {future_reminder_time.humanize()} of: {reminder.message}"
+            output_message: str = f"You will be reminded {future_reminder_time.humanize()} of: {reminder_message}"
             return output_message
 
         # TODO Fix embed for reminders in the past
@@ -351,16 +286,18 @@ Example usage:
         user_reminders: list[tuple[int, str, str, str]] = []
 
         # Sorted reminders by date and time ascending
-        user_reminders2: list[Reminder] = await self._get_all_reminders_by_user_id(event.author_id)
+        async with get_db() as db:
+            user_reminders2 = await db.reminder.find_many(order=[{"reminder_utc": "asc"}])
+
+        if len(user_reminders2) == 0:
+            return "You don't have any reminders."
+
         reminder_id = 1
         while user_reminders2:
-            r: Reminder = user_reminders2.pop(0)
-            time: arrow.Arrow = arrow.Arrow.utcfromtimestamp(r.reminder_utc_timestamp)
+            r: models.Reminder = user_reminders2.pop(0)
+            time: arrow.Arrow = arrow.get(r.reminder_utc)
             user_reminders.append((reminder_id, str(time), time.humanize(), r.message))
             reminder_id += 1
-
-        if not user_reminders:
-            return "You don't have any reminders."
 
         reminders: list[str] = [
             f"{reminder_id}) {time} {humanize}: {message}" for reminder_id, time, humanize, message in user_reminders
@@ -386,20 +323,20 @@ Example usage:
             embed = Embed(title=error_title, description=embed_description)
             return embed
 
-        user_reminders = await self._get_all_reminders_by_user_id(event.author_id)
-        if 0 <= reminder_id_to_delete <= len(user_reminders) - 1:
-            reminder_to_delete: Reminder = user_reminders[reminder_id_to_delete]
-            # Find the reminder in the reminder list, then remove it
-            logger.info(f"Trying to remove reminder {reminder_to_delete}")
-            logger.info(f"Reminders available: {self.reminders}")
-            self.reminders.remove((reminder_to_delete.reminder_utc_timestamp, reminder_to_delete))
-            heapify(self.reminders)
-            await self.save_reminders()
-            # Say that the reminder was successfully removed?
-            embed = Embed(
-                title=f"Removed {event.author.username}'s reminder", description=f"{reminder_to_delete.message}"
-            )
-            return embed
+        async with get_db() as db:
+            user_reminders = await db.reminder.find_many(order=[{"reminder_utc": "asc"}])
+            if 0 <= reminder_id_to_delete <= len(user_reminders) - 1:
+                reminder_to_delete: models.Reminder = user_reminders[reminder_id_to_delete]
+                # Find the reminder in the reminder list, then remove it
+                logger.info(f"Trying to remove reminder {reminder_to_delete}")
+                logger.info(f"Reminders available: {user_reminders}")
+                await db.reminder.delete(where={"id": reminder_to_delete.id})
+
+                # Say that the reminder was successfully removed?
+                embed = Embed(
+                    title=f"Removed {event.author.username}'s reminder", description=f"{reminder_to_delete.message}"
+                )
+                return embed
 
         # Invalid reminder id, too high number
         if len(user_reminders) == 0:

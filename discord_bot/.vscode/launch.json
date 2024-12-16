@@ -6,7 +6,7 @@
     "configurations": [
         {
             "name": "Discord Bot: Run Current File",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "program": "${file}",
             "console": "integratedTerminal",
@@ -17,20 +17,25 @@
         },
         {
             "name": "Discord Bot: Start",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
-            "cwd": "${workspaceFolder}",
+            "cwd": "${workspaceFolder}/src",
             "program": "discord_bot.py",
             "console": "integratedTerminal",
             "justMyCode": true,
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}/src"
+            }
         },
         {
             "name": "Discord Bot: Run Tests",
-            "type": "python",
+            "type": "debugpy",
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "module": "pytest",
-            "args": [],
+            "args": [
+                "test",
+            ],
             "console": "integratedTerminal",
             "justMyCode": true
         }

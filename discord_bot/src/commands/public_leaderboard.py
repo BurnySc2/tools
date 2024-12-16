@@ -11,7 +11,7 @@ from simple_parsing import ArgumentParser, field
 from table2ascii import Alignment, PresetStyle
 from table2ascii import table2ascii as t2a
 
-from db import DiscordMessage, supabase
+from cache import DiscordMessage, supabase
 
 
 @dataclass

@@ -1,43 +1,34 @@
-[tool.poetry]
-name = "discord_bot"
+[project]
+name = "src"
 version = "0.1.0"
-description = ""
-authors = ["BuRny <gamingburny@gmail.com>"]
-#package-mode = false
+requires-python = ">=3.10, <3.13"
+dependencies = [
+    # Datetime library
+    "arrow>=1.3.0",
+    # Discord bot
+    "hikari>=2.1.0",
+    # Simple logger
+    "loguru>=0.7.3",
+    # postgres client
+    "prisma>=0.15.0",
+    # Table plotting
+    "ptable>=0.9.2",
+    "pydantic>=2.10.3",
+    "python-dotenv>=1.0.1",
+    # Argparse with dataclass
+    "simple-parsing>=0.1.6",
+    # Table as ascii art
+    "table2ascii>=1.1.3",
+]
 
-[tool.poetry.dependencies]
-python = ">=3.9, <3.13"
-# Datetime library
-arrow = "^1.2.2"
-# Discord bot
-hikari = "^2.0.0.dev110"
-# Simple logger
-loguru = "^0.7.0"
-# Table plotting
-ptable = "^0.9.2"
-# Remote SQL DB
-supabase = "^1.0.0"
-postgrest-py = "^0.10.2"
-# Argparse with dataclass
-simple-parsing = "^0.1"
-# Table as ascii art
-table2ascii = "^1.1.0"
-pydantic = "^1.10.5"
-toml = "^0.10.2"
-
-[tool.poetry.group.dev.dependencies]
-# Test library
-hypothesis = "^6.8.5"
-pytest = "^7.0.0"
-pytest-asyncio = "^0.15.1"
-# Linter
-ruff = "^0.1.14"
-# Type checker
-pyre-check = "^0.9.18"
-
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+[dependency-groups]
+dev = [
+    "hypothesis>=6.122.3",
+    "pyre-check>=0.9.23",
+    "pytest>=8.3.4",
+    "pytest-asyncio>=0.25.0",
+    "ruff>=0.8.3",
+]
 
 [tool.yapf]
 based_on_style = "pep8"
