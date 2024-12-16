@@ -1,4 +1,5 @@
 import asyncio
+from csv import DictReader
 from pathlib import Path
 
 import arrow
@@ -45,10 +46,11 @@ async def main() -> None:
 
 
 async def load_csv_to_postgres() -> None:
-    # TODO Upload data to postgres
+    # Upload data to postgres
     path = Path("path_to_file.csv")
+
     with path.open() as f:
-        data = f.readlines()
+        data = DictReader(f.readlines())
 
     # Don't add duplicates
     async with get_db() as db:
@@ -56,35 +58,26 @@ async def load_csv_to_postgres() -> None:
         message_ids = {message.message_id for message in existing_quotes}
 
         for row in data:
-            if not row.strip():
-                continue
-            user_id, messge_id, name, *rest = row.split(",")
-            time = rest[-1]
-            content = ",".join(rest[:-1])
-            user_id = user_id.strip('"')
-            messge_id = messge_id.strip('"')
-            name = name.strip('"')
-            content = content.strip('"')
-            time = time.strip("\n").strip('"')
-            time_arrow = arrow.get(time)
+            message_id = int(row["message_id"])
+            time_arrow = arrow.get(row["when"])
             # Add quote to db
-            if int(messge_id) in message_ids:
+            if message_id in message_ids:
                 continue
 
             await db.discordquote.create(
                 data={
-                    "message_id": messge_id,
-                    "guild_id": 447056980960346113,
-                    "channel_id": 1037477281200877608,
-                    "author_id": user_id,
-                    "who": name,
+                    "message_id": message_id,
+                    "guild_id": int(row["guild_id"]),
+                    "channel_id": int(row["message_id"]),
+                    "author_id": int(row["author_id"]),
+                    "who": row["who"],
                     "when": time_arrow.datetime,
-                    "what": content,
-                    "emoji_name": "twss",
+                    "what": row["what"],
+                    "emoji_name": row["emoji_name"],
                 }
             )
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
-    # asyncio.run(load_csv_to_supabase())
+    # asyncio.run(main())
+    asyncio.run(load_csv_to_postgres())
