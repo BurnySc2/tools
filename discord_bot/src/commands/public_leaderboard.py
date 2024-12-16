@@ -62,8 +62,6 @@ async def public_leaderboard(
     event: GuildMessageCreateEvent,
     message: str,
 ):
-    # Pick a random quote
-    # TODO Allow to pick a quote of a specific user
     message = message.strip()
 
     unknown_args: list[str]

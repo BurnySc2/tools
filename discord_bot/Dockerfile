@@ -1,17 +1,32 @@
-FROM python:3.10-slim
+FROM ghcr.io/astral-sh/uv:python3.12-alpine AS base
+
+# Install npm for prisma
+RUN apk update \
+    && apk upgrade \
+    && apk add --no-cache npm
+
+COPY uv.lock pyproject.toml /root/discord_bot/
 
 WORKDIR /root/discord_bot
+RUN uv sync --no-dev --frozen --no-cache --no-install-project
 
-ADD poetry.lock pyproject.toml ./
+# Prepare prisma client and generate types
+COPY prisma/* /root/discord_bot/prisma/
+RUN uv run --no-dev --frozen prisma generate
 
-RUN pip install poetry --no-cache-dir \
-    && poetry install --no-dev
+COPY src /root/discord_bot/src
 
-ADD . /root/discord_bot
+RUN rm -r \
+    /usr/bin/node \
+    /usr/lib/node_modules \
+    /root/.npm \
+    /root/.cache/prisma \
+    # Required for interaction with prisma: /root/.cache/prisma-python \
+    /var/cache
 
-# Allow imports like 'from discord_bot.commands.public_remind import Remind'
-ENV PYTHONPATH "${PYTHONPATH}:/root"
-
-CMD ["poetry", "run", "python", "discord_bot.py"]
-
-# See run.sh
+# Squash image with trick https://stackoverflow.com/a/56118557/10882657
+FROM scratch
+COPY --from=base / /
+WORKDIR /root/discord_bot
+ENV PYTHONPATH=$PYTHONPATH:/root/discord_bot/src
+CMD ["uv", "run", "--no-dev", "src/discord_bot.py"]
