@@ -70,7 +70,7 @@ services:
     networks:
       - traefiknet
     deploy:
-      replicas: 1
+      replicas: 2
     profiles: [prod]
 
   # === DEV SETUP

@@ -33,7 +33,10 @@ assert MINIO_AUDIOBOOK_BUCKET is not None
 assert re.match(_BUCKET_NAME_REGEX, MINIO_AUDIOBOOK_BUCKET) is not None
 
 
-ESTIMATE_FACTOR = 0.1
+# Increase this value to give converters more time to convert an audio
+# Ideal value is slightly above 0.1
+# TODO Export as env value
+ESTIMATE_FACTOR = 0.3
 
 
 async def convert_one():
@@ -116,7 +119,7 @@ async def convert_one():
 
         # Save result to database
         object_name = f"{chapter.id}_audio.mp3"
-        minio_client.put_object(MINIO_AUDIOBOOK_BUCKET, f"{chapter.id}_audio.mp3", audio, len(audio.getvalue()))
+        minio_client.put_object(MINIO_AUDIOBOOK_BUCKET, object_name, audio, len(audio.getvalue()))
         logger.info("Saving result to database")
         await db.audiobookchapter.update_many(
             data={
@@ -125,7 +128,7 @@ async def convert_one():
             },
             where={"id": chapter.id},
         )
-    logger.info("Done converting")
+    logger.info(f"Done converting, saved to {object_name}")
 
 
 async def keep_converting():

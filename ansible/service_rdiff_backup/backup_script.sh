@@ -13,6 +13,11 @@ backup_function() {
     MAX_BACKUPS="$3"
     PASSWORD="$4"
 
+    if [[ ! -d "$SOURCE_DIRECTORY" ]]; then
+        echo "Directory does not exist: $SOURCE_DIRECTORY"
+        return 1  # Exit the function with a non-zero status
+    fi
+
     create_backup() {
         ARCHIVE_NAME="backup_$1_$(date +%Y%m%d_%H%M%S).zip"
         cd "$SOURCE_DIRECTORY"
@@ -42,10 +47,10 @@ backup_function() {
             "-x!**data/metadata" # jelllyfin
             "-x!**data/files" # owncloud
             # Exclude internal backups
-            "-x!**backup"
+            "-x!**backup" # trillium
             # Exclude temp and log files
             "-x!**cache"
-            "-x!**log"
+            "-x!**log" # trillium
 
             # Target zip path
             "$TARGET_DIRECTORY/$ARCHIVE_NAME"

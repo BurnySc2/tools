@@ -17,9 +17,7 @@ from litestar.enums import RequestEncodingType
 from litestar.exceptions import HTTPException
 from litestar.params import Body, Parameter
 from litestar.response import Template
-from litestar.status_codes import (
-    HTTP_204_NO_CONTENT,
-)
+from litestar.status_codes import HTTP_204_NO_CONTENT
 from litestar.stores.memory import MemoryStore
 from loguru import logger
 from minio import Minio

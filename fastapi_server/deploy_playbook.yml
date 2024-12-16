@@ -4,6 +4,7 @@
   hosts: server_group2
   vars:
     USERNAME: litestar_server
+  # TODO Deploy webserver to server_group2 but converter to server_group4 for better internet traffic
   tasks:
     - name: Create group
       ansible.builtin.group:
@@ -42,6 +43,7 @@
           - "--exclude=.env*"
           - "--exclude=__pycache__"
           - "--exclude=.benchmarks"
+          - "--exclude=.git"
           - "--exclude=.pyre"
           - "--exclude=.pytest_cache"
           - "--exclude=.ruff_cache"

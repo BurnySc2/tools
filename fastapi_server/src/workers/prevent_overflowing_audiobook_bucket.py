@@ -5,6 +5,7 @@ import os
 import re
 from contextlib import suppress
 
+from loguru import logger
 from minio import S3Error
 from minio.helpers import _BUCKET_NAME_REGEX
 
@@ -63,7 +64,7 @@ async def delete_book_return_bytes(book: models.AudiobookBook) -> int:
         chapter_objects_to_remove,
     )
     async with get_db() as db:
-        await db.audiobookbook.delete_many(where={"id": book.id})
+        await db.audiobookbook.delete(where={"id": book.id})
     return total_size_freed
 
 
@@ -86,8 +87,9 @@ async def prevent_overflowing_audiobook_bucket() -> None:
                 )
             if oldest_book is None:
                 break
-            size_freed: int = await delete_book_return_bytes(oldest_book)
-            minio_audiobooks_size_used_mb -= size_freed / 2**20
+            logger.info(f"Deleting book to free up space: {oldest_book.id}")
+            _size_freed: int = await delete_book_return_bytes(oldest_book)
+            minio_audiobooks_size_used_mb = await minio_get_bucket_size_in_mb(MINIO_AUDIOBOOK_BUCKET)
 
         # Repeat every hour
         await asyncio.sleep(3600)
