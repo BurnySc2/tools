@@ -79,5 +79,5 @@ async def load_csv_to_postgres() -> None:
 
 
 if __name__ == "__main__":
-    # asyncio.run(main())
-    asyncio.run(load_csv_to_postgres())
+    asyncio.run(main())
+    # asyncio.run(load_csv_to_postgres())
