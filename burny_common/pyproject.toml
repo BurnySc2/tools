@@ -1,32 +1,18 @@
-[tool.poetry]
+[project]
 name = "burny_common"
 version = "0.0.13"
-description = ""
-authors = ["BurnySc2 <gamingburny@gmail.com>"]
-packages = [
-    { include = "burny_common/*.py" },
+requires-python = ">=3.9, <3.13"
+dependencies = [
+    "click>=8.1.7",
+    "loguru>=0.7.3",
+    "paramiko>=3.5.0",
 ]
 
-[tool.poetry.dependencies]
-python = ">=3.8, <3.13"
-loguru = "^0.7"
-click = "^8.1"
-paramiko = "^2.11"
-psutil = "^5.9"
-requests = "^2.28"
-types-requests = "^2.27"
-portpicker = "^1.5"
-
-[tool.poetry.group.dev.dependencies]
-toml = "^0.10.2"
-# Linter
-ruff = "^0.1.14"
-# Type checker
-pyre-check = "^0.9.18"
-
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+[dependency-groups]
+dev = [
+    "pyre-check>=0.9.23",
+    "ruff>=0.8.3",
+]
 
 [tool.yapf]
 based_on_style = "pep8"
@@ -60,4 +46,3 @@ select = [
 ]
 # Allow Pydantic's `@validator` decorator to trigger class method treatment.
 pep8-naming.classmethod-decorators = ["pydantic.validator", "classmethod"]
-

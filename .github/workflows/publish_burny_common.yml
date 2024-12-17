@@ -21,7 +21,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+        python-version: ['3.9', '3.10', '3.11', '3.12']
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -60,7 +60,7 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        python-version: ['3.10']
+        python-version: ['3.12']
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -72,36 +72,22 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Install Poetry
-      run: pip install poetry --no-cache-dir
+    - name: Install uv
+      run: pip install uv
 
-    - name: Make poetry use local .venv folder
-      run: poetry config virtualenvs.in-project true
-
-    - name: Set up cache
-      uses: actions/cache@v3
-      with:
-        path: ${{ env.SUBDIRECTORY }}/.venv
-        key: ${{ matrix.os }}-${{ steps.setup-python.outputs.python-version }}-poetry-${{ env.SUBDIRECTORY }}-${{ hashFiles('poetry.lock') }}
-
-    - name: Install dependencies
+    - name: Install packages
       working-directory: ${{ env.SUBDIRECTORY }}
-      run: poetry install --no-dev
+      run: uv sync --frozen --no-cache --no-install-project
 
-    - name: Set pypi token
+    - name: Build project
       working-directory: ${{ env.SUBDIRECTORY }}
-      run: poetry config pypi-token.pypi ${{ secrets.pypi_burny_common_token }}
-
-    - name: Build
-      working-directory: ${{ env.SUBDIRECTORY }}
-      run: poetry build
+      run: uv build
 
     - id: wait-for-jobs
       uses: yogeshlonkar/wait-for-jobs@v0
       with:
         gh-token: ${{ secrets.GITHUB_TOKEN }}
         jobs: |
-          run_code_check_py3.8
           run_code_check_py3.9
           run_code_check_py3.10
           run_code_check_py3.11
@@ -112,4 +98,4 @@ jobs:
       if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
       working-directory: ${{ env.SUBDIRECTORY }}
       continue-on-error: true
-      run: poetry publish
+      run: uv publish --token ${{ secrets.pypi_burny_common_token }}

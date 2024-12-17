@@ -2,7 +2,6 @@ import subprocess
 import sys
 from io import StringIO
 from pathlib import Path
-from typing import Optional, Set
 
 import click
 import paramiko
@@ -10,6 +9,7 @@ from click.testing import CliRunner
 from paramiko import SSHClient
 from paramiko.sftp_client import SFTPClient
 
+# pyre-fixme[21]
 from burny_common.copy_file_to_server import copy_file_to_server_helper, generate_path
 
 
@@ -19,7 +19,7 @@ def copy_folder_to_server_helper(
     path_source_root_folder: Path,
     path_target_root_folder: Path,
     file_or_folder: Path,
-    allowed_files: Optional[Set] = None,
+    allowed_files: set | None = None,
 ):
     source_path_relative_to_root = file_or_folder.relative_to(path_source_root_folder)
     if file_or_folder.is_file():
@@ -70,7 +70,7 @@ def copy_folder_to_server(
         path_source_root_folder = Path(sourcepath)
         path_target_root_folder = generate_path(client, targetpath)
 
-        allowed_files: Optional[Set] = None
+        allowed_files: set | None = None
         if respectgitignore:
             proc = subprocess.Popen(
                 ["git", "ls-files"],

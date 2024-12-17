@@ -1,5 +1,5 @@
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Iterable
 
 
 def convert_string_to_path(multi_line_string: str) -> Iterable[Path]:
