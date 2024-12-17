@@ -3,12 +3,12 @@ name: test_discord_bot
 on:
   push:
     paths:
-    - discord_bot/**
-    - .github/workflows/test_discord_bot.yml
+      - discord_bot/**
+      - .github/workflows/test_discord_bot.yml
   pull_request:
     branches:
-    - master
-    - develop
+      - master
+      - develop
 
 env:
   SUBDIRECTORY: discord_bot
@@ -20,37 +20,37 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        python-version: ['3.10', '3.11', '3.12']
+        python-version: ["3.10", "3.11", "3.12"]
     runs-on: ${{ matrix.os }}
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      # In conflict with pyre-check
-      #    - name: Set up Python ${{ matrix.python-version }}
-      #      uses: actions/setup-python@v4
-      #      with:
-      #        python-version: ${{ matrix.python-version }}
-      #
-      #    - name: Cache .venv
-      #      uses: actions/cache@v3
-      #      with:
-      #        path: .venv
-      #        key: ${{ env.SUBDIRECTORY }}-${{ matrix.os }}-${{ steps.setup-python.outputs.python-version }}-poetry-${{ hashFiles('poetry.lock') }}
+        # In conflict with pyre-check
+        #    - name: Set up Python ${{ matrix.python-version }}
+        #      uses: actions/setup-python@v4
+        #      with:
+        #        python-version: ${{ matrix.python-version }}
+        #
+        #    - name: Cache .venv
+        #      uses: actions/cache@v3
+        #      with:
+        #        path: .venv
+        #        key: ${{ env.SUBDIRECTORY }}-${{ matrix.os }}-${{ steps.setup-python.outputs.python-version }}-poetry-${{ hashFiles('poetry.lock') }}
 
-      # https://earthly.dev/get-earthly
-    - name: Install Earthly
-      run: sudo /bin/sh -c 'wget https://github.com/earthly/earthly/releases/latest/download/earthly-linux-amd64 -O /usr/local/bin/earthly && chmod +x /usr/local/bin/earthly && /usr/local/bin/earthly bootstrap --with-autocomplete'
+        # https://earthly.dev/get-earthly
+      - name: Install Earthly
+        run: sudo /bin/sh -c 'wget https://github.com/earthly/earthly/releases/latest/download/earthly-linux-amd64 -O /usr/local/bin/earthly && chmod +x /usr/local/bin/earthly && /usr/local/bin/earthly bootstrap --with-autocomplete'
 
-    - name: Install
-      working-directory: ${{ env.SUBDIRECTORY }}
-      run: |
-        touch SECRETS.toml
-        earthly +install-dev --verbose true --PYTHONVERSION=${{ matrix.python-version }}
+      - name: Install
+        working-directory: ${{ env.SUBDIRECTORY }}
+        run: |
+          touch SECRETS.toml
+          earthly +install-dev --verbose true --PYTHONVERSION=${{ matrix.python-version }}
 
-    - name: Run code checks and tests
-      working-directory: ${{ env.SUBDIRECTORY }}
-      run: earthly +all --verbose true --PYTHONVERSION=${{ matrix.python-version }}
+      - name: Run code checks and tests
+        working-directory: ${{ env.SUBDIRECTORY }}
+        run: earthly +all --verbose true --PYTHONVERSION=${{ matrix.python-version }}
 
   #    - name: Save cache
   #      working-directory: ${{ env.SUBDIRECTORY }}
