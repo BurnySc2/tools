@@ -16,7 +16,7 @@ x-services-fragments:
       [
         "sh",
         "-c",
-        "src/workers/convert_audiobook.py && sleep 1m",
+        "python src/workers/convert_audiobook.py && sleep 1m",
       ]
     env_file:
       - .env

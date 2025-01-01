@@ -117,7 +117,7 @@ class Solution:
         return operations
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     test_cases_and_results = [
         ["aaaabbaaabbaaa123456A", 3],
         ["ABABABABABABABABABAB1", 2],

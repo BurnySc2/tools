@@ -1,26 +1,63 @@
-[tool.poetry]
-name = "leetcode-solutions"
+[project]
+name = "python_src"
 version = "0.1.0"
-description = ""
-authors = ["BurnySc2 <gamingburny@gmail.com>"]
+requires-python = ">=3.10, <3.13"
+dependencies = ["loguru>=0.7.2", "numpy>=2.2.1"]
 
-[tool.poetry.dependencies]
-python = ">=3.7 <3.11"
-numpy = "^1.21.1"
-atomicwrites = "^1.4.0"
-pytest = "^6.2.4"
-pytest-benchmark = "^3.4.1"
-yapf = "^0.32.0"
-toml = "^0.10.2"
-
-[tool.poetry.dev-dependencies]
-
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+[dependency-groups]
+dev = [
+  "pyre-check>=0.9.23",
+  "pyright>=1.1.391",
+  "pytest-benchmark>=5.1.0",
+  "pytest>=8.3.4",
+  "ruff>=0.8.4",
+]
 
 [tool.yapf]
 based_on_style = "pep8"
 column_limit = 120
 split_arguments_when_comma_terminated = true
 dedent_closing_brackets = true
+allow_split_before_dict_value = false
+
+[tool.ruff]
+target-version = 'py310'
+line-length = 120
+# Allow unused variables when underscore-prefixed.
+lint.dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+lint.select = [
+  "C4",  # flake8-comprehensions
+  "E",   # Error
+  "F",   # pyflakes
+  "BLE", # flake8-blind-except
+  # "I",   # isort
+  "N",   # pep8-naming
+  "PGH", # pygrep-hooks
+  "PTH", # flake8-use-pathlib
+  "SIM", # flake8-simplify
+  "W",   # Warning
+  "Q",   # flake8-quotes
+  "YTT", # flake8-2020
+  "UP",  # pyupgrade
+  #    "A",  # flake8-builtins
+]
+
+[tool.ruff.lint.pep8-naming]
+# Allow Pydantic's `@validator` decorator to trigger class method treatment.
+classmethod-decorators = ["pydantic.validator", "classmethod"]
+
+[tool.pytest.ini_options]
+pythonpath = "src"
+
+[tool.pyright]
+include = ["src"]
+exclude = ["**/__pycache__", ".venv/**"]
+# ignore = ["src/oldstuff"]
+defineConstant = { DEBUG = true }
+# stubPath = "src/stubs"
+
+pythonVersion = "3.10"
+
+typeCheckingMode = "standard"
+# reportUnusedVariable = false
+# reportUndefinedVariable = false

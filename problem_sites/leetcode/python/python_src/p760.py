@@ -216,5 +216,5 @@ def main():
     print(f"Solution: {solution}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
