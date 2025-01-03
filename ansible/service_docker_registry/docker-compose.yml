@@ -1,0 +1,27 @@
+services:
+  registry:
+    image: registry:2
+    container_name: docker_registry
+    restart: unless-stopped
+    volumes:
+      - ./data:/var/lib/registry
+      - ./auth:/auth
+    environment:
+      - REGISTRY_AUTH=htpasswd
+      - REGISTRY_AUTH_HTPASSWD_PATH=/auth/htpasswd
+      - REGISTRY_AUTH_HTPASSWD_REALM=Registry Realm
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.registry.entrypoints=web,websecure
+      - traefik.http.routers.registry.rule=Host(`{{ secrets.DOCKER_REGISTRY.SUBDOMAIN }}.{{ secrets.MY_DOMAIN }}`)
+      - traefik.http.services.registry.loadbalancer.server.port={{ APPLICATION_PORT }}
+      - traefik.http.routers.registry.service=registry
+      - traefik.http.routers.registry.tls=true
+      - traefik.http.routers.registry.tls.certresolver=production
+    networks:
+      - "{{ secrets.TRAEFIK_NETWORK }}"
+      
+networks:
+  "{{secrets.TRAEFIK_NETWORK}}":
+    external: true
+       
