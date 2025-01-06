@@ -15,9 +15,9 @@ let STAGE = getenv("STAGE")
 type
   # Data retrieved from twitch api
   StreamInfo = object of RootObj
-    username: string = ""
+    username: string
     displayname: string = ""
-    live: bool = false
+    live: bool
     stream_title: string = ""
     live_since: string = ""
     stream_category: string = ""
@@ -244,19 +244,18 @@ proc get_which_streams_to_announce_and_update(
   announce_in_webhook: seq[AnnounceInfo],
 ] =
   result = (@[], @[], @[], @[])
-  var announce_in_webhook: seq[AnnounceInfo] = @[]
-  var announced_streams: seq[string] = @[]
-  var online_streams: seq[string] = @[]
-  var now_offline_streams: seq[string] = @[]
   for row in database_rows:
     let name = row["twitch_name"]
     if name notin stream_infos:
       echo fmt"Name not found in stream_info: {name}"
       continue
     let stream_info = stream_infos[name]
+    # Find all channels that switched from online to offline
+    if row["status"] != "offline" and not stream_info.live:
+      result.now_offline_streams.add(name)
     if stream_info.live:
       # Always update database entries for live channels
-      online_streams.add(name)
+      result.online_streams.add(name)
       # Find all channels that switched from offline to online
       if row["status"] != "online":
         # If the stream has not been seen online for more than 30 minutes, announce in webhook
@@ -268,8 +267,8 @@ proc get_which_streams_to_announce_and_update(
         let parsed_time = last_seen_online.parse_postgres_time
         if now().utc - parsed_time < initDuration(minutes = 30):
           continue
-        announced_streams.add(name)
-        announce_in_webhook.add(
+        result.announced_streams.add(name)
+        result.announce_in_webhook.add(
           AnnounceInfo(
             username: name,
             displayname: stream_info.displayname,
@@ -281,10 +280,6 @@ proc get_which_streams_to_announce_and_update(
             announce_message: row["announce_message"],
           )
         )
-    # Find all channels that switched from online to offline
-    if row["status"] != "offline" and not stream_info.live:
-      now_offline_streams.add(name)
-  return (announced_streams, online_streams, now_offline_streams, announce_in_webhook)
 
 proc main() =
   let t1 = cpuTime()
