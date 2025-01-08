@@ -52,7 +52,7 @@ proc fetch_postgres_users(): seq[TableRef[string, string]] =
     ORDER BY id
     ;"""
   ):
-    result.add(row.convert_to_table(column_names))
+    result &= row.convert_to_table(column_names)
 
 proc to_postgres_array(my_seq: seq[string]): string =
   result = ""
@@ -61,8 +61,8 @@ proc to_postgres_array(my_seq: seq[string]): string =
     post = "]::text[])"
   for index, value in my_seq:
     if index > 0:
-      result.add(", ")
-    result.add(fmt"'{value}'")
+      result &= ", "
+    result &= fmt"'{value}'"
   result = pre & result & post
 
 proc update_database_entries(
@@ -118,7 +118,7 @@ proc get_twitch_info_for_20(
   var uri = parseUri("https://api.twitch.tv/helix/streams")
   var params = newSeq[string]()
   for name in streamer_names:
-    params.add(fmt"user_login={name.toLower}")
+    params &= fmt"user_login={name.toLower}"
   let params_string = params.join("&")
   uri = uri / fmt"?{params_string}"
   let response = client.get(uri)
@@ -153,7 +153,7 @@ proc get_twitch_infos(
   result = newTable[string, StreamInfo]()
   var streamer_names_seq: seq[string] = @[]
   for index, name in streamer_names:
-    streamer_names_seq.add(name.toLower)
+    streamer_names_seq &= name.toLower
     if streamer_names_seq.len == 20 or index == streamer_names.high:
       let streams = client.get_twitch_info_for_20(access_token, streamer_names_seq)
       for name, stream_info in streams:
@@ -179,7 +179,7 @@ proc parse_postgres_time(my_time: string): DateTime =
   var time_copied = my_time
   let expected_format = "2025-01-06 01:44:43.123456"
   while time_copied.len < expected_format.len:
-    time_copied.add("0")
+    time_copied &= "0"
   result = parse(time_copied, "yyyy-MM-dd hh:mm:ss.ffffff")
 
 proc parse_twitch_api_time(my_time: string): DateTime =
@@ -252,10 +252,10 @@ proc get_which_streams_to_announce_and_update(
     let stream_info = stream_infos[name]
     # Find all channels that switched from online to offline
     if row["status"] != "offline" and not stream_info.live:
-      result.now_offline_streams.add(name)
+      result.now_offline_streams &= name
     if stream_info.live:
       # Always update database entries for live channels
-      result.online_streams.add(name)
+      result.online_streams &= name
       # Find all channels that switched from offline to online
       if row["status"] != "online":
         # If the stream has not been seen online for more than 30 minutes, announce in webhook
@@ -267,8 +267,8 @@ proc get_which_streams_to_announce_and_update(
         let parsed_time = last_seen_online.parse_postgres_time
         if now().utc - parsed_time < initDuration(minutes = 30):
           continue
-        result.announced_streams.add(name)
-        result.announce_in_webhook.add(
+        result.announced_streams &= name
+        result.announce_in_webhook &=
           AnnounceInfo(
             username: name,
             displayname: stream_info.displayname,
@@ -279,7 +279,6 @@ proc get_which_streams_to_announce_and_update(
             webhook_url: row["discord_webhook"],
             announce_message: row["announce_message"],
           )
-        )
 
 proc main() =
   let t1 = cpuTime()
