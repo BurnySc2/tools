@@ -28,41 +28,7 @@
         src: .env.server
         dest: /home/{{ USERNAME }}/.env
 
-    - name: Ensure destination directory exists
-      file:
-        path: /home/{{ USERNAME }}/dockerfiles
-        state: directory
-        mode: "0755"
-
-    - name: Copy files except .env to the destination directory
-      ansible.posix.synchronize:
-        src: "./"
-        dest: "/home/{{ USERNAME }}/dockerfiles/"
-        rsync_opts:
-          - "--exclude=.env*"
-          - "--exclude=__pycache__"
-          - "--exclude=.benchmarks"
-          - "--exclude=.pyre"
-          - "--exclude=.pytest_cache"
-          - "--exclude=.ruff_cache"
-          - "--exclude=.venv"
-          - "--exclude=.vscode"
-
-    - name: Build the Docker image
-      community.docker.docker_image:
-        name: burnysc2/twitch_stream_announcer:latest
-        state: present
-        build:
-          path: /home/{{ USERNAME }}/dockerfiles
-        source: build
-        # Force building even if image already exists
-        force_source: true
-
-    - name: Delete all build-files
-      file:
-        path: /home/{{ USERNAME }}/dockerfiles
-        state: absent
-
     - name: Run `docker-compose up` again
       community.docker.docker_compose_v2:
         project_src: /home/{{ USERNAME }}
+        pull: always
