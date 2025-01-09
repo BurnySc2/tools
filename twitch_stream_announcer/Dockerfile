@@ -1,12 +1,26 @@
-FROM ghcr.io/astral-sh/uv:python3.12-alpine
+FROM nimlang/nim:2.2.0-alpine as base
 
-COPY uv.lock pyproject.toml /root/stream_announcer/
+# Install dependencies
+COPY twitch_stream_announcer.nimble /root/tsa/
+WORKDIR /root/tsa
+RUN nimble install --depsOnly
 
-WORKDIR /root/stream_announcer
-RUN uv sync --no-dev --frozen --no-cache --no-install-project
+# Build binary
+COPY src /root/tsa/src
+# RUN nimble c -d:ssl -d:release --passL:"-static -no-pie" -o:main src/main.nim 
+RUN nimble c -d:ssl -o:main src/main.nim 
+# RUN nimble c -d:ssl -d:danger-o:main src/main.nim 
 
-COPY src /root/stream_announcer/src
+# # Squash image with trick https://stackoverflow.com/a/56118557/10882657
+# FROM alpine:3
+# RUN mkdir -p /root/tsa
+# COPY --from=base /root/tsa/main /root/tsa/main
 
-ENV PYTHONPATH=$PYTHONPATH:/root/stream_announcer/src
+# How to get the .so without installing the whole lib?
+# https://pkgs.alpinelinux.org/package/edge/main/x86/libpq
+RUN apk add libpq
+# RUN apk add openssl
+# RUN apk add libssl3
 
-CMD ["uv", "run", "--no-dev", "python", "src/stream_announcer.py"]
+WORKDIR /root/tsa
+CMD ["./main"]

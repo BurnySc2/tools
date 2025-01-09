@@ -1,7 +1,7 @@
 services:
   stream_announcer:
     image: burnysc2/twitch_stream_announcer:latest
-    command: uv run --no-dev src/stream_announcer.py
+    command: "./main"
     pull_policy: never
     deploy:
       replicas: 1

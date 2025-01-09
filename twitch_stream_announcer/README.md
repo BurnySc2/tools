@@ -1,3 +1,19 @@
+# Compile with nimble
+
+```sh
+# Compile in fastest mode
+nimble c -d:ssl -d:release src/main.nim
+nimble c -d:ssl -d:danger src/main.nim
+# Run
+./src/main
+```
+
+# Debug docker container
+
+```sh
+docker build -t burnysc2/twitch_stream_announcer:latest . && docker run -it burnysc2/twitch_stream_announcer:latest sh -c 'apk add gdu && gdu /'
+```
+
 # Create postgres user and permission
 
 ```sql
