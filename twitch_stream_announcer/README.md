@@ -8,19 +8,13 @@ nimble c -d:ssl -d:release -o:main src/main.nim
 ./main
 ```
 
-# Debug docker container
-
-```sh
-docker build -t burnysc2/twitch_stream_announcer:latest . && docker run -it burnysc2/twitch_stream_announcer:latest sh -c 'apk add gdu && gdu /'
-```
-
 # Build slim image
 
 https://github.com/slimtoolkit/slim
 
 ```sh
-docker build -t burnysc2/twitch_stream_announcer:latest .
-slim build --target burnysc2/twitch_stream_announcer:latest --tag burnysc2/twitch_stream_announcer:slim --http-probe=false --env-file .env --exec "/root/tsa/main"
+docker build -t burnysc2/twitch_stream_announcer:local .
+slim build --target burnysc2/twitch_stream_announcer:local --tag burnysc2/twitch_stream_announcer:latest--http-probe=false --env STAGE=BUILD --exec "/root/tsa/main"
 # 'docker images' should print image smaller than 8mb
 ```
 

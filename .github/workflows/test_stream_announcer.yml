@@ -47,19 +47,31 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build normal docker image
+      - name: Build docker image
         working-directory: ${{ env.SUBDIRECTORY }}
-        run: docker build -t ${{ env.DOCKER_IMAGE_NAME }}:latest .
-
-      # TODO Add STAGE=BUILD where a postgres connection is attemped but fails
+        run: docker build -t "$DOCKER_IMAGE_NAME:local" .
 
       - uses: kitabisa/docker-slim-action@v1
         env:
           DSLIM_HTTP_PROBE: false
           DSLIM_HOST_EXEC: "/root/tsa/main"
+          STAGE: BUILD
         with:
-          target: ${{ env.DOCKER_IMAGE_NAME }}:latest
-          tag: ${{ env.DOCKER_IMAGE_SLIM_NAME }}:slim
+          target: $DOCKER_IMAGE_NAME:local
+          tag: $DOCKER_IMAGE_NAME:latest
 
-      # TODO Login to docker hub
-      # TODO Push image to public docker hub
+      - name: Create tag ${{ env.DOCKER_IMAGE_VERSION }}
+        run: docker tag $DOCKER_IMAGE_NAME:latest $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_VERSION
+
+      - name: Login to DockerHub
+        if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Upload docker image
+        if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
+        run: |
+          docker push $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_VERSION
+          docker push $DOCKER_IMAGE_NAME:latest

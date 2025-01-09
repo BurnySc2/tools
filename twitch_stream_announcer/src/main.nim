@@ -12,7 +12,7 @@ import std/uri
 import strformat
 
 let STAGE = getenv("STAGE")
-assert STAGE in ["DEV", "PROD"]
+assert STAGE in ["BUILD", "DEV", "PROD"]
 
 type
   # Data retrieved from twitch api
@@ -29,15 +29,12 @@ type
     webhook_url: string
     announce_message: string
 
-let POSTGRES_CONNECTION_STRING = getenv("POSTGRES_CONNECTION_STRING")
-let db: DbConn = open("", "", "", POSTGRES_CONNECTION_STRING)
-
 func convert_to_table(row: Row, column_names: seq[string]): TableRef[string, string] =
   result = newTable[string, string]()
   for (column_value, column_name) in zip(row, column_names):
     result[column_name] = column_value
 
-proc fetch_postgres_users(): seq[TableRef[string, string]] =
+proc fetch_postgres_users(db: DbConn): seq[TableRef[string, string]] =
   # Grab all rows
   # Add a table to the sequence with {key: value} pair of {column_name: column_value} for each row
   result = newSeq[TableRef[string, string]]()
@@ -68,7 +65,7 @@ proc to_postgres_array(my_seq: seq[string]): string =
   result = pre & result & post
 
 proc update_database_entries(
-    announced_streams, online_streams, now_offline_streams: seq[string]
+    db: DbConn, announced_streams, online_streams, now_offline_streams: seq[string]
 ) =
   let current_time = now().utc.format("yyyy-MM-dd hh:mm:ss.fff")
   let announced_query =
@@ -282,9 +279,9 @@ proc get_which_streams_to_announce_and_update(
             announce_message: row["announce_message"],
           )
 
-proc run_once() =
+proc run_once(db: DbConn) =
   let t1 = cpuTime()
-  let rows = fetch_postgres_users()
+  let rows = fetch_postgres_users(db)
   # echo fmt"Rows as list of dict: {rows}"
   let t2 = cpuTime()
   let stream_infos = fetch_twitch_stream_status(rows)
@@ -296,7 +293,7 @@ proc run_once() =
   # echo fmt"Info tuple: {info_tuple}"
   let t4 = cpuTime()
   update_database_entries(
-    info_tuple.announced_streams, info_tuple.online_streams,
+    db, info_tuple.announced_streams, info_tuple.online_streams,
     info_tuple.now_offline_streams,
   )
   let t5 = cpuTime()
@@ -310,25 +307,33 @@ proc run_once() =
     echo fmt"Sending webhooks: {t6 - t5}"
     echo fmt"Total time taken: {t6 - t1}"
 
-proc run_for_one_hour() =
+proc run_for_one_hour(db: DbConn) =
   let t1 = cpuTime()
   let duration: float = 60 * 60
   while true:
     if duration < cpuTime() - t1:
       break
     echo "Running once"
-    run_once()
+    run_once(db)
     sleep 10 * 1000
 
-proc main() =
+proc main(db: DbConn) =
   if STAGE == "DEV":
-    run_once()
+    run_once(db)
   elif STAGE == "PROD":
-    run_for_one_hour()
+    run_for_one_hour(db)
 
 when isMainModule:
   echo "Started nim.main"
+  var db: DbConn
   try:
-    main()
+    let POSTGRES_CONNECTION_STRING = getenv("POSTGRES_CONNECTION_STRING")
+    db = open("", "", "", POSTGRES_CONNECTION_STRING)
+    main(db)
+  except DbError as e:
+    echo e.msg
+    if STAGE != "BUILD":
+      # Reraise error if this is not the docker build process
+      raise e
   finally:
     db.close()

@@ -1,6 +1,6 @@
 services:
   stream_announcer:
-    image: burnysc2/twitch_stream_announcer:latest
+    image: burnysc2/twitch_stream_announcer:slim
     command: "./main"
     pull_policy: never
     deploy:
@@ -10,7 +10,7 @@ services:
           cpus: "0.1"
           memory: 2048M
       restart_policy:
-        # Wait 1m before restarting
+        # Wait 1m before restarting, seems to be ignored?!
         delay: 1m
         condition: any
     restart: always
