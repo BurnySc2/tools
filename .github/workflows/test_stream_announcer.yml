@@ -16,12 +16,12 @@ env:
 
 jobs:
   test_stream_announcer:
-    name: test_stream_announcer_py${{ matrix.python-version }}
+    name: test_stream_announcer_nim-${{ matrix.nim-version }}
     strategy:
       fail-fast: false
       matrix:
         os: [ubuntu-latest]
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
+        nim-version: ["2.2.0-alpine", "2.2.0-ubuntu"]
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -34,12 +34,12 @@ jobs:
       - name: Install
         working-directory: ${{ env.SUBDIRECTORY }}
         run: |
-          touch .env
-          earthly +install-dev --verbose true --PYTHONVERSION=${{ matrix.python-version }}
+          earthly +setup --verbose true --NIMVERSION=${{ matrix.nim-version }}
 
-      - name: Run code checks and tests
+      - name: Compile
         working-directory: ${{ env.SUBDIRECTORY }}
-        run: earthly +all --verbose true --PYTHONVERSION=${{ matrix.python-version }}
+        run: |
+          earthly +compile --verbose true --NIMVERSION=${{ matrix.nim-version }}
 
   build_and_deploy_docker_image:
     name: Build and deploy docker image

@@ -1,55 +1,30 @@
 VERSION 0.6
-# earthly +all --PYTHONVERSION=3.12
-ARG PYTHONVERSION=3.12
-FROM ghcr.io/astral-sh/uv:python${PYTHONVERSION}-bookworm-slim
-WORKDIR /root/stream_announcer
+# earthly +all --NIMVERSION=1.6.14
+ARG NIMVERSION=2.2.0-ubuntu
+FROM nimlang/nim:${NIMVERSION}
+WORKDIR /root/tsa
 
-install-dev:
-    COPY uv.lock pyproject.toml ./
-    RUN uv sync --frozen --no-cache --no-install-project
-    COPY src /root/fastapi_server/src
+setup:
+    COPY . /root/tsa
+    RUN nimble install --depsOnly
 
-format:
+run-local:
     # Run on host system instead of inside a container
     LOCALLY
-    # Requirements:
-    # pip install uv
-    # uv sync
-    
-    # Convert single to double quotes
-    RUN uv run ruff check . --select Q --fix
-    # Remove unused imports
-    RUN uv run ruff check . --select F --fix
-    # Sort imports
-    RUN uv run ruff check . --select I --fix
-    # Format code
-    RUN uv run ruff format .
+    RUN nim r -d:release main.nim
 
-# Check if files are correctly formatted
-format-check:
-    FROM +install-dev
-    RUN uv run ruff format . --check --diff
+run:
+    FROM +setup
+    RUN nim r -d:release main.nim
 
-# Ignore errors via "# noqa: F841"
-lint:
-    FROM +install-dev
-    RUN uv run ruff check .
+compile:
+    FROM +setup
+    RUN nimble c -d:ssl -d:release --opt:size -o:main src/main.nim 
 
-# Ignore errors via "# pyre-fixme[11]"
-pyre:
-    FROM +install-dev
-    COPY .pyre_configuration /root/stream_announcer/.pyre_configuration
-    RUN uv run pyre
-
-# pytest:
-#     FROM +install-dev
-#     RUN uv run pytest test
-
-pre-commit:
-    BUILD +format-check
-    BUILD +lint
-    BUILD +pyre
+run-tests:
+    FROM +setup
+    RUN testament pattern "tests/*.nim"
 
 all:
-    BUILD +pre-commit
-    #BUILD +pytest
+    BUILD +compile
+    # BUILD +run-tests
