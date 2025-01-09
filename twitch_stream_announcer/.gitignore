@@ -1,2 +1,5 @@
 .env
 .env.server
+
+main
+slim.report.json

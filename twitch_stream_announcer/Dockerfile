@@ -1,12 +1,15 @@
-FROM ghcr.io/astral-sh/uv:python3.12-alpine
+FROM nimlang/nim:2.2.0-alpine as base
 
-COPY uv.lock pyproject.toml /root/stream_announcer/
+# Install dependencies
+COPY twitch_stream_announcer.nimble /root/tsa/
+WORKDIR /root/tsa
+RUN nimble install --depsOnly
 
-WORKDIR /root/stream_announcer
-RUN uv sync --no-dev --frozen --no-cache --no-install-project
+# Build binary
+COPY src /root/tsa/src
+RUN nimble c -d:ssl -d:release --opt:size -o:main src/main.nim 
 
-COPY src /root/stream_announcer/src
+# https://pkgs.alpinelinux.org/package/edge/main/x86/libpq
+RUN apk add --no-cache libpq
 
-ENV PYTHONPATH=$PYTHONPATH:/root/stream_announcer/src
-
-CMD ["uv", "run", "--no-dev", "python", "src/stream_announcer.py"]
+CMD ["./main"]
