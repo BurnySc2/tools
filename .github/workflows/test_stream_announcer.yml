@@ -70,6 +70,9 @@ jobs:
       - name: Create tag ${{ env.DOCKER_IMAGE_VERSION }}
         run: docker tag $DOCKER_IMAGE_NAME:latest $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_VERSION
 
+      - name: Debug prind images
+        run: docker images
+
       - name: Login to DockerHub
         if: github.ref == 'refs/heads/develop' && github.event_name == 'push'
         uses: docker/login-action@v2
