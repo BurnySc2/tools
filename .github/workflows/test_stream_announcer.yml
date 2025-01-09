@@ -51,14 +51,21 @@ jobs:
         working-directory: ${{ env.SUBDIRECTORY }}
         run: docker build -t "$DOCKER_IMAGE_NAME:local" .
 
-      - uses: kitabisa/docker-slim-action@v1
-        env:
-          DSLIM_HTTP_PROBE: false
-          DSLIM_HOST_EXEC: "/root/tsa/main"
-          STAGE: BUILD
-        with:
-          target: $DOCKER_IMAGE_NAME:local
-          tag: $DOCKER_IMAGE_NAME:latest
+      # Cert error https://github.com/kitabisa/docker-slim-action/issues/15
+      # - uses: kitabisa/docker-slim-action@v1
+      #   env:
+      #     DSLIM_HTTP_PROBE: false
+      #     DSLIM_HOST_EXEC: "/root/tsa/main"
+      #     STAGE: BUILD
+      #   with:
+      #     target: $DOCKER_IMAGE_NAME:local
+      #     tag: $DOCKER_IMAGE_NAME:latest
+
+      - name: Slim the Docker image🚀
+        run: |
+          curl -L -o ds.tar.gz https://github.com/slimtoolkit/slim/releases/download/1.40.11/dist_linux.tar.gz
+          tar -xvf ds.tar.gz
+          ./dist_linux/slim build --target $DOCKER_IMAGE_NAME:local --tag $DOCKER_IMAGE_NAME:latest --http-probe=false --env STAGE=BUILD --exec "/root/tsa/main"
 
       - name: Create tag ${{ env.DOCKER_IMAGE_VERSION }}
         run: docker tag $DOCKER_IMAGE_NAME:latest $DOCKER_IMAGE_NAME:$DOCKER_IMAGE_VERSION
