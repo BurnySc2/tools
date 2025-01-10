@@ -175,21 +175,26 @@ proc fetch_twitch_stream_status(
     client.close()
 
 proc parse_postgres_time(my_time: string): DateTime =
+  assert $dateTime(2025, mJan, 1, 9, 9, 9, zone = utc()) ==
+    $parse("2025-01-01 09:09:09 ", "yyyy-MM-dd HH:mm:ss", tz = utc())
   var time_copied = my_time
   let expected_format = "2025-01-06 01:44:43.123456"
   while time_copied.len < expected_format.len:
     time_copied &= "0"
-  result = parse(time_copied, "yyyy-MM-dd HH:mm:ss.ffffff", utc())
+  result = parse(time_copied, "yyyy-MM-dd HH:mm:ss.ffffff", tz = utc())
 
 proc parse_twitch_api_time(my_time: string): DateTime =
   # Expected format: "2025-01-06T03:16:52Z"
-  result = parse(my_time, "yyyy-MM-dd'T'HH:mm:ss'Z'", utc())
+  assert $dateTime(2025, mJan, 1, 9, 9, 9, zone = utc()) ==
+    $parse("2025-01-01T09:09:09Z", "yyyy-MM-dd'T'HH:mm:ss'Z'", tz = utc())
+  result = parse(my_time, "yyyy-MM-dd'T'HH:mm:ss'Z'", tz = utc())
 
 proc datetime_to_webhook_string(my_time: DateTime): string =
   # E.g. converts DateTime object "2025-01-04 01:02:03.123456"
   # to "since 2025-01-04 01:02:03 (which was XX seconds ago)"
   runnableExamples:
-    let dt: DateTime = parse("2025-01-06 01:44:43.1234", "yyyy-MM-dd HH:mm:ss.ffffff")
+    let dt: DateTime =
+      parse("2025-01-06 01:44:43.1234", "yyyy-MM-dd HH:mm:ss.ffffff", tz = utc())
     echo dt.datetime_to_webhook_string()
   let formatted = my_time.format("yyyy-MM-dd HH:mm:ss")
   var human_time_interval = between(my_time, now().utc)
