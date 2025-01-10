@@ -67,7 +67,7 @@ proc to_postgres_array(my_seq: seq[string]): string =
 proc update_database_entries(
     db: DbConn, announced_streams, online_streams, now_offline_streams: seq[string]
 ) =
-  let current_time = now().utc.format("yyyy-MM-dd hh:mm:ss.fff")
+  let current_time = now().utc.format("yyyy-MM-dd HH:mm:ss.fff")
   let announced_query =
     "UPDATE stream_announcer_streams SET announced_at = ?, status = 'online', last_seen_online = ? WHERE twitch_name = "
   let online_query =
@@ -179,19 +179,19 @@ proc parse_postgres_time(my_time: string): DateTime =
   let expected_format = "2025-01-06 01:44:43.123456"
   while time_copied.len < expected_format.len:
     time_copied &= "0"
-  result = parse(time_copied, "yyyy-MM-dd hh:mm:ss.ffffff")
+  result = parse(time_copied, "yyyy-MM-dd HH:mm:ss.ffffff", utc())
 
 proc parse_twitch_api_time(my_time: string): DateTime =
   # Expected format: "2025-01-06T03:16:52Z"
-  result = parse(my_time, "yyyy-MM-dd'T'hh:mm:ss'Z'")
+  result = parse(my_time, "yyyy-MM-dd'T'HH:mm:ss'Z'", utc())
 
 proc datetime_to_webhook_string(my_time: DateTime): string =
   # E.g. converts DateTime object "2025-01-04 01:02:03.123456"
   # to "since 2025-01-04 01:02:03 (which was XX seconds ago)"
   runnableExamples:
-    let dt: DateTime = parse("2025-01-06 01:44:43.1234", "yyyy-MM-dd hh:mm:ss.ffffff")
+    let dt: DateTime = parse("2025-01-06 01:44:43.1234", "yyyy-MM-dd HH:mm:ss.ffffff")
     echo dt.datetime_to_webhook_string()
-  let formatted = my_time.format("yyyy-MM-dd hh:mm:ss")
+  let formatted = my_time.format("yyyy-MM-dd HH:mm:ss")
   var human_time_interval = between(my_time, now().utc)
   human_time_interval.nanoseconds = 0
   human_time_interval.microseconds = 0
