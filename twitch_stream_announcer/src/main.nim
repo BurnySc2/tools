@@ -176,7 +176,7 @@ proc fetch_twitch_stream_status(
 
 proc parse_postgres_time(my_time: string): DateTime =
   assert $dateTime(2025, mJan, 1, 9, 9, 9, zone = utc()) ==
-    $parse("2025-01-01 09:09:09 ", "yyyy-MM-dd HH:mm:ss", tz = utc())
+    $parse("2025-01-01 09:09:09", "yyyy-MM-dd HH:mm:ss", tz = utc())
   var time_copied = my_time
   let expected_format = "2025-01-06 01:44:43.123456"
   while time_copied.len < expected_format.len:
