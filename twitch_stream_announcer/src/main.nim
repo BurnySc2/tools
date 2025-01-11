@@ -271,7 +271,7 @@ proc get_which_streams_to_announce_and_update(
         let parsed_time = last_seen_online.parse_postgres_time
         if now().utc - parsed_time < initDuration(minutes = 30):
           continue
-        result.announced_streams &= name
+        result.announced_streams.addUnique(name)
         result.announce_in_webhook &=
           AnnounceInfo(
             username: name,
