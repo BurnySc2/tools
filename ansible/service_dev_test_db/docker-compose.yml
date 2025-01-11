@@ -1,0 +1,84 @@
+networks:
+  "{{secrets.TRAEFIK_NETWORK}}":
+    external: true
+
+volumes:
+  postgres_data_dev:
+  maria_data_dev:
+
+services:
+  postgres_dev:
+    container_name: postgres_dev
+    image: postgres:17-alpine
+    networks:
+      - "{{ secrets.TRAEFIK_NETWORK }}"
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: "{{ secrets.DATABASES_DEV.POSTGRES_DEV_USER }}"
+      POSTGRES_PASSWORD: "{{ secrets.DATABASES_DEV.POSTGRES_DEV_PASSWORD }}"
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+    labels:
+      - "traefik.enable=true"
+      - "traefik.tcp.routers.pg_dev.rule=HostSNI(`{{ secrets.DATABASES_DEV.POSTGRES_DEV_SUBDOMAIN }}.{{ secrets.MY_DOMAIN }}`)"
+      - "traefik.tcp.routers.pg_dev.entrypoints=pgsql"
+      - "traefik.tcp.routers.pg_dev.tls=true"
+      - "traefik.tcp.routers.pg_dev.tls.certresolver=production"
+      # Optional:
+      - "traefik.tcp.services.pg_dev.loadBalancer.server.port=5432"
+
+  postgres_test:
+    container_name: postgres_test
+    image: postgres:17-alpine
+    networks:
+      - "{{ secrets.TRAEFIK_NETWORK }}"
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: "{{ secrets.DATABASES_DEV.POSTGRES_TEST_USER }}"
+      POSTGRES_PASSWORD: "{{ secrets.DATABASES_DEV.POSTGRES_TEST_PASSWORD }}"
+    labels:
+      - "traefik.enable=true"
+      - "traefik.tcp.routers.pg_test.rule=HostSNI(`{{ secrets.DATABASES_DEV.POSTGRES_TEST_SUBDOMAIN }}.{{ secrets.MY_DOMAIN }}`)"
+      - "traefik.tcp.routers.pg_test.entrypoints=pgsql"
+      - "traefik.tcp.routers.pg_test.tls=true"
+      - "traefik.tcp.routers.pg_test.tls.certresolver=production"
+      # Optional:
+      - "traefik.tcp.services.pg_test.loadBalancer.server.port=5432"
+
+  maria_dev:
+    hostname: maria_dev
+    image: mariadb:10.6
+    networks:
+      - "{{ secrets.TRAEFIK_NETWORK }}"
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: "{{ secrets.DATABASES_DEV.MARIA_DEV_PASSWORD }}"
+      MARIADB_DATABASE: maria
+    volumes:
+      - maria_data_dev:/var/lib/mysql
+    labels:
+      - "traefik.enable=true"
+      - "traefik.tcp.routers.maria_dev.rule=HostSNI(`{{ secrets.DATABASES_DEV.MARIA_DEV_SUBDOMAIN }}.{{ secrets.MY_DOMAIN }}`)"
+      - "traefik.tcp.routers.maria_dev.entrypoints=pgsql"
+      - "traefik.tcp.routers.maria_dev.tls=true"
+      - "traefik.tcp.routers.maria_dev.tls.certresolver=production"
+      # Optional:
+      - "traefik.tcp.services.maria_dev.loadBalancer.server.port=3306"
+
+  maria_test:
+    hostname: maria_test
+    image: mariadb:10.6
+    networks:
+      - "{{ secrets.TRAEFIK_NETWORK }}"
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: "{{ secrets.DATABASES_DEV.MARIA_DEV_PASSWORD }}"
+      MARIADB_DATABASE: maria
+    labels:
+      - "traefik.enable=true"
+      - "traefik.tcp.routers.maria_test.rule=HostSNI(`{{ secrets.DATABASES_DEV.MARIA_TEST_SUBDOMAIN }}.{{ secrets.MY_DOMAIN }}`)"
+      - "traefik.tcp.routers.maria_test.entrypoints=pgsql"
+      - "traefik.tcp.routers.maria_test.tls=true"
+      - "traefik.tcp.routers.maria_test.tls.certresolver=production"
+      # Optional:
+      - "traefik.tcp.services.maria_test.loadBalancer.server.port=3306"
