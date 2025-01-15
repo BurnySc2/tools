@@ -8,3 +8,6 @@ RUN uv sync --no-dev --frozen --no-cache --no-install-project
 COPY main.py ./
 ENV PATH="/root/.venv/bin:$PATH"
 CMD ["python", "main.py"]
+
+# Results in 93mb docker image, 33mb slimmed
+
